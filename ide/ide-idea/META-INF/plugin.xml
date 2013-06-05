@@ -1,0 +1,30 @@
+<idea-plugin version="2">
+    <id>pada.ide.idea</id>
+    <name>Pada</name>
+    <version>0.1</version>
+    <vendor email="ol.loginov@gmail.com">Oleg Loginov</vendor>
+
+    <description><![CDATA[
+      Adds support for developing Pada source code.
+      ]]></description>
+
+    <idea-version since-build="107.105"/>
+
+    <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <application-components>
+    </application-components>
+
+    <project-components>
+    </project-components>
+
+    <actions>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+</idea-plugin>
