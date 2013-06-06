@@ -3,7 +3,7 @@ grammar Pada;
 // PARSER ======================================================================
 
 compilationUnit
-  : packageDecl? importDecl* typeDecl* EOF
+  : packageDecl? importDecl* (typeDecl)*
   ;
 
 packageDecl
@@ -28,6 +28,7 @@ typeDecl
 
 classDecl
     : typeMod*
+      CLASS
     ;
 
 typeMod
@@ -145,7 +146,7 @@ UnicodeEscape
   ;
 
 Identifier
-  : Letter (Letter|JavaIDDigit)*
+  : Letter (Letter|Digit)*
   ;
 
 fragment
@@ -156,13 +157,9 @@ Letter
   | 'a'..'z' // a-z
   ;
 
-fragment
-JavaIDDigit
-    : '0' .. '9'
-    ;
-
 // terminals
 NL: '\r\n' | '\r' | '\n';
+END: NL | EOF;
 DOT: '.';
 SPACE : [ \r\t\u000C\n]+ -> channel(HIDDEN);
 COMMENT : '/*' .*? '*/' -> channel(HIDDEN);
