@@ -60,11 +60,14 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
     public T visitChildren(@NotNull RuleNode node) {
         ParserRuleContext ruleContext = (ParserRuleContext) node;
         boolean indentChildren
-                = node instanceof PadaParser.CompilationUnitContext
-                || node instanceof PadaParser.TypeDeclContext
+                = node instanceof PadaParser.UnitContext
+                || node instanceof PadaParser.UnitClassContext
+                || node instanceof PadaParser.UnitExtensionContext
+                || node instanceof PadaParser.UnitFunctionContext
                 || node instanceof PadaParser.ClassDeclContext
                 || node instanceof PadaParser.ClassBodyContext
-                || node instanceof PadaParser.TypeMemberDeclContext;
+                || node instanceof PadaParser.TypeMemberDeclContext
+                || node instanceof PadaParser.FunctionContext;
 
         write("(" + PadaParser.ruleNames[ruleContext.getRuleIndex()]);
 

@@ -1,0 +1,16 @@
+@XmlSchema
+package my.extensions
+
+@Nullable
+void Iterable<T>.mapAndReduce(@NotNull G text)
+    where G : T, Iterable
+    throws IllegalException
+{
+}
+
+@Nullable
+int readMyBook(String text) {
+}
+
+void readSomeBook<T>(String text) {
+}

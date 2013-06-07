@@ -1,21 +1,24 @@
 grammar Pada;
 
 // PARSER ======================================================================
-compilationUnit
-  : packageDecl? 
-    importDecl* 
-    typeDecl*
+unit
+  : unitPackage? 
+    unitImport* 
+    ( unitClass
+    | unitExtension
+    | unitFunction
+    )*
   ;
 
 /* UNIT DECLARATION */
 
-packageDecl
-    : PACKAGE packageName;
+unitPackage
+    : annotation* PACKAGE packageName;
 
 packageName
     : identifier (Dot identifier)*;
 
-importDecl
+unitImport
     : IMPORT packageName (AS importAlias)?;
 
 importAlias
@@ -26,11 +29,20 @@ importAlias
 typeName
     : (packageName Dot)? identifier;
 
+typeNameList
+    : typeName (ListDelim typeName)*;
+
 typeGenericSpec
-    : BracketOpen (typeName (ListDelim typeName)* )? BracketClose;
+    : BracketOpen typeNameList? BracketClose;
 
 typeSpec
     : typeName typeGenericSpec?;
+
+typeSpecList
+    : typeSpec (ListDelim typeSpec)*;
+
+typeSpecNullable
+    : typeSpec Question?;
 
 /* ANNOTATIONS */
 
@@ -43,16 +55,26 @@ annotationParamList
 annotationParam 
     : (identifier Equal)? expr;
 
+/* EXTENSION FUNCTIONS */
+unitFunction
+    : annotation* function;
+
+unitExtension
+    : annotation* functionResultDecl extensionTarget Dot functionSignature;
+
+extensionTarget
+    : typeSpec;
+
 /* TYPE DECLARATIONS */
 
 typeMod
     : PUBLIC | FINAL | STATIC;
 
-typeDecl
-    : classDecl classBody?;
-
 typeDeclName
     : identifier;
+
+unitClass
+    : classDecl classBody?;
 
 classDecl
     : annotation* typeMod* CLASS typeDeclName typeGenericSpec? classSuperList?
@@ -64,40 +86,59 @@ classSuperList
 classBody
     : ScopeOpen typeMemberDecl* ScopeClose;
 
-/* CLASS MEMBERS */
+/* TYPE MEMBERS */
 
 typeMemberMod
     : PUBLIC | FINAL | STATIC;
 
 typeMemberDecl
-    : annotation* typeMemberMod* 
-      ( functionDecl
-      | fieldDecl 
-      | constructorDecl);
+    : typeFunctionDecl
+    | typeFieldDecl 
+    | typeConstructorDecl;
 
-fieldDecl
-    : typeSpec Question? identifier;
+typeFieldDecl
+    : annotation* typeMemberMod* typeSpecNullable identifier;
 
-constructorDecl
-    : identifier constructorParamList functionBody?;
+typeConstructorDecl
+    : annotation* typeMemberMod* identifier typeConstructorParamList functionBody?;
 
-constructorParamList
-    : ListOpen constructorParam (ListDelim constructorParam)* ListClose;
+typeConstructorParamList
+    : ListOpen typeConstructorParam (ListDelim typeConstructorParam)* ListClose;
 
-constructorParam
-    : annotation* typeSpec identifier;
+typeConstructorParam
+    : annotation* typeSpecNullable identifier;
 
-functionDecl
-    : functionResultDecl identifier functionParameterList functionBody?;
+typeFunctionDecl
+    : annotation* typeMemberMod* function;
 
-functionParameterList
-    : ListOpen functionParameterDecl (ListDelim functionParameterDecl)* ListClose;
+/* CONSTRAINTS */
 
-functionParameterDecl
-    : annotation* typeSpec identifier;
+constraintThrows
+    : THROWS typeSpecList;
+
+constraintGeneric
+    : WHERE identifier Colon typeSpecList;
+
+/* FUNCTIONS */
+function
+    : functionResultDecl functionSignature;
+             
+functionSignature
+    : identifier typeGenericSpec? functionArgList functionConstraint* functionBody?;
+
+functionConstraint
+    : constraintThrows
+    | constraintGeneric;
+
+functionArgList
+    : ListOpen functionArg (ListDelim functionArg)* ListClose;
+
+functionArg
+    : annotation* typeSpecNullable identifier;
 
 functionResultDecl
-    : typeSpec;
+    : VOID
+    | typeSpecNullable;
 
 functionBody
     : ScopeOpen expr* ScopeClose;
@@ -133,6 +174,10 @@ PRIVATE : 'private';
 FINAL : 'final';
 STATIC : 'static';
 SUPER : 'super';
+ANNOTATION : 'annotation';
+VOID : 'void';
+THROWS : 'throws';
+WHERE : 'where';
 
 // fragments
 AnnotationPrefix : '@';

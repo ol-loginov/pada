@@ -10,7 +10,6 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class TestRun {
     @Test
@@ -19,18 +18,18 @@ public class TestRun {
         while (TestHelper.hasAsset(String.format("%04d.pada", ++assetIndex))) {
             testAsset(String.format("%04d", assetIndex));
         }
-        assertEquals("some tests should present in assets", assetIndex, 4);
+        assertEquals("some tests should present in assets", assetIndex, 5);
     }
 
     @Test
     public void testAsset() throws IOException, URISyntaxException {
-        testAsset("0003");
+        testAsset("0004");
     }
 
     private void testAsset(String assetName) throws URISyntaxException, IOException {
         PadaLexer lexer = new PadaLexer(new ANTLRInputStream(getClass().getResourceAsStream(assetName + ".pada")));
         PadaParser parser = new PadaParser(new BufferedTokenStream(lexer));
-        PadaParser.CompilationUnitContext unit = parser.compilationUnit();
+        PadaParser.UnitContext unit = parser.unit();
 
         String expected = TestHelper.readAsset(assetName + ".tree");
         String actual = unit.accept(new CodeTreeWriter<>(new StringWriter())).toString();

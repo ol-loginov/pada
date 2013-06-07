@@ -1,23 +1,25 @@
-(compilationUnit
-  (packageDecl [test.now])
-  (typeDecl
+(unit
+  (unitPackage [test.now])
+  (unitClass
     (classDecl
       (annotation (typeName Valid) (annotationParamList (annotationParam implementedBy (expr Shnobel))))
       (typeDeclName Shnobel)
-      (classSuperList (typeSpec (typeName [java.io] Serializable)) (typeSpec (typeName Comparator) (typeGenericSpec (typeName Shnobel)))))
+      (typeGenericSpec (typeNameList (typeName T)))
+      (classSuperList (typeSpec (typeName [java.io] Serializable)) (typeSpec (typeName Comparator) (typeGenericSpec (typeNameList (typeName Shnobel))))))
     (classBody
       (typeMemberDecl
-        (fieldDecl (typeSpec (typeName String)) text))
+        (typeFieldDecl (typeSpecNullable (typeSpec (typeName String))) text))
       (typeMemberDecl
-        (fieldDecl (typeSpec (typeName String)) label))
+        (typeFieldDecl (typeSpecNullable (typeSpec (typeName String))) label))
       (typeMemberDecl
-        (annotation (typeName Inject))
-        (typeMemberMod)
-        (constructorDecl Shnobel (constructorParamList (constructorParam (typeSpec (typeName val)) text))))
+        (typeConstructorDecl (annotation (typeName Inject)) (typeMemberMod) Shnobel (typeConstructorParamList (typeConstructorParam (typeSpecNullable (typeSpec (typeName val))) text))))
       (typeMemberDecl
-        (annotation (typeName Inject))
-        (typeMemberMod)
-        (constructorDecl Shnobel (constructorParamList (constructorParam (typeSpec (typeName val)) text) (constructorParam (typeSpec (typeName val)) label)) (functionBody)))
+        (typeConstructorDecl (annotation (typeName Inject)) (typeMemberMod) Shnobel (typeConstructorParamList (typeConstructorParam (typeSpecNullable (typeSpec (typeName val))) text) (typeConstructorParam (typeSpecNullable (typeSpec (typeName val))) label)) (functionBody)))
       (typeMemberDecl
-        (typeMemberMod)
-        (functionDecl (functionResultDecl (typeSpec (typeName void))) test (functionParameterList (functionParameterDecl (typeSpec (typeName int)) value)) (functionBody))))))
+        (typeFunctionDecl (typeMemberMod) (function
+            (functionResultDecl)
+            (functionSignature add (functionArgList (functionArg (typeSpecNullable (typeSpec (typeName int))) value)) (functionBody)))))
+      (typeMemberDecl
+        (typeFunctionDecl (typeMemberMod) (function
+            (functionResultDecl (typeSpecNullable (typeSpec (typeName T))))
+            (functionSignature add (functionArgList (functionArg (typeSpecNullable (typeSpec (typeName T))) value)) (functionBody))))))))

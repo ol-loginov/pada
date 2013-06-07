@@ -1,2 +1,2 @@
-(compilationUnit
-  (packageDecl [a0000]))
+(unit
+  (unitPackage [a0000]))

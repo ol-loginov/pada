@@ -1,4 +1,4 @@
-(compilationUnit
-  (packageDecl [a0000])
-  (importDecl [java.lang.String])
-  (importDecl [java.buffer.String] (importAlias BufferString)))
+(unit
+  (unitPackage [a0000])
+  (unitImport [java.lang.String])
+  (unitImport [java.buffer.String] (importAlias BufferString)))
