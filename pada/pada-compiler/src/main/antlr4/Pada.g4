@@ -13,18 +13,18 @@ packageDecl
     : PACKAGE packageName;
 
 packageName
-    : Identifier (Dot Identifier)*;
+    : identifier (Dot identifier)*;
 
 importDecl
     : IMPORT packageName (AS importAlias)?;
 
 importAlias
-    : Identifier;
+    : identifier;
 
 /* TYPE NAMING */
 
 typeName
-    : (packageName Dot)? Identifier;
+    : (packageName Dot)? identifier;
 
 typeGenericSpec
     : BracketOpen (typeName (ListDelim typeName)* )? BracketClose;
@@ -41,7 +41,7 @@ annotationParamList
     : ListOpen annotationParam (ListDelim annotationParam )* ListClose;
 
 annotationParam 
-    : (Identifier Equal)? expr;
+    : (identifier Equal)? expr;
 
 /* TYPE DECLARATIONS */
 
@@ -51,8 +51,11 @@ typeMod
 typeDecl
     : classDecl classBody?;
 
+typeDeclName
+    : identifier;
+
 classDecl
-    : annotation* typeMod* CLASS Identifier typeGenericSpec? classSuperList?
+    : annotation* typeMod* CLASS typeDeclName typeGenericSpec? classSuperList?
     ;
 
 classSuperList
@@ -73,25 +76,25 @@ typeMemberDecl
       | constructorDecl);
 
 fieldDecl
-    : typeSpec Question? Identifier;
+    : typeSpec Question? identifier;
 
 constructorDecl
-    : Identifier constructorParamList functionBody;
+    : identifier constructorParamList functionBody?;
 
 constructorParamList
     : ListOpen constructorParam (ListDelim constructorParam)* ListClose;
 
 constructorParam
-    : annotation* typeSpec Identifier;
+    : annotation* typeSpec identifier;
 
 functionDecl
-    : functionResultDecl Identifier functionParameterList functionBody;
+    : functionResultDecl identifier functionParameterList functionBody?;
 
 functionParameterList
     : ListOpen functionParameterDecl (ListDelim functionParameterDecl)* ListClose;
 
 functionParameterDecl
-    : annotation* typeSpec Identifier;
+    : annotation* typeSpec identifier;
 
 functionResultDecl
     : typeSpec;
@@ -100,10 +103,12 @@ functionBody
     : ScopeOpen expr* ScopeClose;
 
 /* EXPRESSIONS */
+identifier
+    : Identifier;
 
 expr 
     : exprLiteral
-    | Identifier;
+    | identifier;
 
 exprLiteral
     : BinaryLiteral

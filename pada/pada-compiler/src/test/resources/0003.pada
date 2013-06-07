@@ -1,19 +1,20 @@
-package test
+package test.now
 
 @Valid(implementedBy = Shnobel)
 class Shnobel
     : java.io.Serializable
     , Comparator<Shnobel>
 {
-    String? text;
-    String? label;
+    String? text
+    String? label
     // String? comparatorValue for Comparator.value
 
     @Inject
-    public Shnobel(val text) {}
+    public Shnobel(val text)
 
     @Inject
-    public Shnobel(val text, val label) {}
+    public Shnobel(val text, val label) {
+    }
 
     public void test(int value) {
     }

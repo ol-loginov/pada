@@ -1,2 +1,2 @@
-UNIT
- PACKAGE(.a0000)
+(compilationUnit
+  (packageDecl [a0000]))

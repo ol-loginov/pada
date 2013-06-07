@@ -1,0 +1,23 @@
+(compilationUnit
+  (packageDecl [test.now])
+  (typeDecl
+    (classDecl
+      (annotation (typeName Valid) (annotationParamList (annotationParam implementedBy (expr Shnobel))))
+      (typeDeclName Shnobel)
+      (classSuperList (typeSpec (typeName [java.io] Serializable)) (typeSpec (typeName Comparator) (typeGenericSpec (typeName Shnobel)))))
+    (classBody
+      (typeMemberDecl
+        (fieldDecl (typeSpec (typeName String)) text))
+      (typeMemberDecl
+        (fieldDecl (typeSpec (typeName String)) label))
+      (typeMemberDecl
+        (annotation (typeName Inject))
+        (typeMemberMod)
+        (constructorDecl Shnobel (constructorParamList (constructorParam (typeSpec (typeName val)) text))))
+      (typeMemberDecl
+        (annotation (typeName Inject))
+        (typeMemberMod)
+        (constructorDecl Shnobel (constructorParamList (constructorParam (typeSpec (typeName val)) text) (constructorParam (typeSpec (typeName val)) label)) (functionBody)))
+      (typeMemberDecl
+        (typeMemberMod)
+        (functionDecl (functionResultDecl (typeSpec (typeName void))) test (functionParameterList (functionParameterDecl (typeSpec (typeName int)) value)) (functionBody))))))

@@ -1,2 +1,4 @@
-UNIT
- CLASS(AAA)
+(compilationUnit
+  (typeDecl
+    (classDecl
+      (typeDeclName AAA))))

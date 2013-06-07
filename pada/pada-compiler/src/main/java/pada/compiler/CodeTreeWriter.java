@@ -1,14 +1,15 @@
 package pada.compiler;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import pada.compiler.antlr4.PadaBaseVisitor;
 import pada.compiler.antlr4.PadaParser;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 
 public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
     private final T writer;
@@ -31,99 +32,56 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
     }
 
     @Override
-    public T visitCompilationUnit(@NotNull final PadaParser.CompilationUnitContext ctx) {
-        writeScope("UNIT", new Runnable() {
-            @Override
-            public void run() {
-                if (ctx.packageDecl() != null) {
-                    ctx.packageDecl().accept(CodeTreeWriter.this);
-                }
-                for (PadaParser.ImportDeclContext importDecl : ctx.importDecl()) {
-                    importDecl.accept(CodeTreeWriter.this);
-                }
-                for (PadaParser.TypeDeclContext importDecl : ctx.typeDecl()) {
-                    importDecl.accept(CodeTreeWriter.this);
-                }
-            }
-        });
+    public T visitTerminal(@NotNull TerminalNode node) {
+        write(node.getText());
         return defaultResult();
     }
 
     @Override
-    public T visitPackageDecl(@NotNull PadaParser.PackageDeclContext ctx) {
-        indent();
-        write("PACKAGE(");
-        ctx.packageName().accept(this);
-        writeln(")");
+    public T visitIdentifier(@NotNull PadaParser.IdentifierContext ctx) {
+        write(ctx.getText());
         return defaultResult();
     }
 
     @Override
     public T visitPackageName(@NotNull PadaParser.PackageNameContext ctx) {
-        for (TerminalNode identifier : ctx.Identifier()) {
-            write('.');
-            write(identifier.getText());
+        write("[");
+        int index = 0;
+        for (PadaParser.IdentifierContext name : ctx.identifier()) {
+            if (index++ > 0) write(".");
+            name.Identifier().accept(this);
         }
+        write("]");
         return defaultResult();
+
     }
 
     @Override
-    public T visitImportDecl(@NotNull PadaParser.ImportDeclContext ctx) {
-        indent();
-        write("IMPORT(");
-        ctx.packageName().accept(this);
-        if (ctx.importAlias() != null) {
-            write(" AS ");
-            write(ctx.importAlias().Identifier().getText());
-        }
-        writeln(")");
-        return defaultResult();
-    }
+    public T visitChildren(@NotNull RuleNode node) {
+        ParserRuleContext ruleContext = (ParserRuleContext) node;
+        boolean indentChildren
+                = node instanceof PadaParser.CompilationUnitContext
+                || node instanceof PadaParser.TypeDeclContext
+                || node instanceof PadaParser.ClassDeclContext
+                || node instanceof PadaParser.ClassBodyContext
+                || node instanceof PadaParser.TypeMemberDeclContext;
 
-    @Override
-    public T visitClassDecl(@NotNull final PadaParser.ClassDeclContext ctx) {
-        writeScope("CLASS(" + ctx.Identifier().getText() + ")", new Runnable() {
-            @Override
-            public void run() {
-                writeAnnotations(ctx.annotation());
-                writeModifiers(ctx.typeMod());
+        write("(" + PadaParser.ruleNames[ruleContext.getRuleIndex()]);
+
+        ++indent;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            if (node.getChild(i) instanceof TerminalNode)
+                continue;
+            if (indentChildren) {
+                indent();
+            } else {
+                write(" ");
             }
-        });
+            node.getChild(i).accept(this);
+        }
+        --indent;
+        write(")");
         return defaultResult();
-    }
-
-    @Override
-    public T visitAnnotation(@NotNull PadaParser.AnnotationContext ctx) {
-        indent();
-        writeScope("WITH ANNOTATION(" + ctx.typeName().getText() + ")", new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
-        return defaultResult();
-    }
-
-    private void writeAnnotations(List<PadaParser.AnnotationContext> annotationList) {
-        for (PadaParser.AnnotationContext annotation : annotationList) {
-            annotation.accept(CodeTreeWriter.this);
-        }
-    }
-
-    private void writeModifiers(Iterable<PadaParser.TypeModContext> typeMods) {
-        for (PadaParser.TypeModContext typeMode : typeMods) {
-            write("AS " + typeMode.getText());
-        }
-    }
-
-    private void writeScope(String text, Runnable scopeWriter) {
-        try {
-            indent();
-            writeln(text);
-            ++indent;
-            scopeWriter.run();
-        } finally {
-            --indent;
-        }
     }
 
     private CodeTreeWriter write(String text) {
@@ -154,6 +112,7 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
     }
 
     private void indent() {
+        writeln("");
         for (int i = 0; i < indent; ++i)
             write("  ");
     }
