@@ -5,6 +5,15 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
 public class TestHelper {
+    public static String join(Iterable<String> strings, String delimiter) {
+        StringBuilder res = new StringBuilder();
+        for (String s : strings) {
+            res.append(delimiter);
+            res.append(s);
+        }
+        return res.toString();
+    }
+
     public static String readAsset(String path) throws IOException {
         InputStream is = TestHelper.class.getResourceAsStream(path);
         if (is == null) throw new IllegalArgumentException("asset " + path + " is not found");

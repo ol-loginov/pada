@@ -13,13 +13,13 @@ unit
 /* UNIT DECLARATION */
 
 unitPackage
-    : annotation* PACKAGE packageName;
-
-packageName
-    : identifier (Dot identifier)*;
+    : annotation* PACKAGE typeName;
 
 unitImport
-    : IMPORT packageName (AS importAlias)?;
+    : IMPORT unitImportTarget (AS importAlias)?;
+
+unitImportTarget
+    : typeName;
 
 importAlias
     : identifier;
@@ -27,7 +27,7 @@ importAlias
 /* TYPE NAMING */
 
 typeName
-    : (packageName Dot)? identifier;
+    : (identifier Dot)* identifier;
 
 typeNameList
     : typeName (ListDelim typeName)*;
@@ -53,7 +53,15 @@ annotationParamList
     : ListOpen annotationParam (ListDelim annotationParam )* ListClose;
 
 annotationParam 
-    : (identifier Equal)? expr;
+    : (identifier Equal)? annotationExpr;
+
+annotationExpr
+    : annotationExprArray
+    | annotation      
+    | expr;
+
+annotationExprArray
+    : ScopeOpen (annotationExpr (ListDelim annotationExpr)*)? ScopeClose;
 
 /* EXTENSION FUNCTIONS */
 unitFunction
@@ -144,15 +152,41 @@ functionBody
     : ScopeOpen expr* ScopeClose;
 
 /* EXPRESSIONS */
+
 identifier
     : Identifier;
 
 expr 
-    : exprLiteral
-    | identifier;
+    : exprCommand
+    | exprLiteral
+    | identifier
+//    | exprBinary
+    | exprUnary
+    | exprGroup;
+
+exprGroup
+    : ListOpen expr ListClose;
+
+exprUnary
+    : (Minus | Plus | Exclamation) exprUnaryTail;
+
+exprUnaryTail
+    : expr;
+
+exprBinary
+    : exprAdditivity;
+
+exprAdditivity
+    : expr (Plus|Minus) expr;
+
+exprCommand
+    : RETURN
+    | BREAK
+    | CONTINUE;
 
 exprLiteral
     : BinaryLiteral
+    | BooleanLiteral
     | CharacterLiteral
     | DecimalLiteral
     | FloatingPointLiteral
@@ -178,6 +212,9 @@ ANNOTATION : 'annotation';
 VOID : 'void';
 THROWS : 'throws';
 WHERE : 'where';
+RETURN : 'return';
+BREAK : 'break';
+CONTINUE : 'continue';
 
 // fragments
 AnnotationPrefix : '@';
@@ -192,6 +229,22 @@ Equal : '=';
 Colon : ':';
 Dot: '.';
 Question: '?';
+Plus: '+';
+Minus: '-';
+Mult: '*';
+Div: '/';
+Mod: '%';
+Exclamation : '!';
+And : '&&';
+Or : '||';
+Xor : '^';
+BinaryAnd : '&';
+BinaryOr : '|';
+ShiftLeft : '<<';
+ShiftRight : '>>';
+
+BooleanLiteral
+    : 'true' | 'false';
     
 HexLiteral
   // underscores may be freely inserted after first hex digit and before last

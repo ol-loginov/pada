@@ -1,0 +1,13 @@
+(unit
+  (unitClass
+    (classDecl
+      (annotation [Valid] (annotationParamList (annotationParam implementedBy (annotationExpr (expr Shnobel)))))
+      (typeDeclName _0005_one)))
+  (unitClass
+    (classDecl
+      (annotation [Valid] (annotationParamList (annotationParam implementedBy (annotationExpr (annotationExprArray (annotationExpr (expr Shnobel)) (annotationExpr (expr Shnobel)))))))
+      (typeDeclName _0005_array)))
+  (unitClass
+    (classDecl
+      (annotation [My.Valid.List] (annotationParamList (annotationParam value (annotationExpr (annotationExprArray (annotationExpr (annotation [My.Valid] (annotationParamList (annotationParam implementedBy (annotationExpr (expr Vrubel)))))) (annotationExpr (annotation [Valid] (annotationParamList (annotationParam implementedBy (annotationExpr (expr Agafonov)))))))))))
+      (typeDeclName _0005_array))))

@@ -1,0 +1,11 @@
+@Valid(implementedBy = Shnobel)
+class _0005_one
+
+@Valid(implementedBy = {Shnobel, Shnobel})
+class _0005_array
+
+@My.Valid.List(value = {
+    @My.Valid(implementedBy = Vrubel),
+    @Valid(implementedBy = Agafonov)
+})
+class _0005_array

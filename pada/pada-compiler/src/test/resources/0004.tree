@@ -1,16 +1,16 @@
 (unit
-  (unitPackage (annotation (typeName XmlSchema)) [my.extensions])
+  (unitPackage (annotation [XmlSchema]) [my.extensions])
   (unitExtension
-    (annotation (typeName Nullable))
+    (annotation [Nullable])
     (functionResultDecl)
-    (extensionTarget (typeSpec (typeName Iterable) (typeGenericSpec (typeNameList (typeName T)))))
-    (functionSignature mapAndReduce (functionArgList (functionArg (annotation (typeName NotNull)) (typeSpecNullable (typeSpec (typeName G))) text)) (functionConstraint (constraintGeneric G (typeSpecList (typeSpec (typeName T)) (typeSpec (typeName Iterable))))) (functionConstraint (constraintThrows (typeSpecList (typeSpec (typeName IllegalException))))) (functionBody)))
+    (extensionTarget (typeSpec [Iterable] (typeGenericSpec (typeNameList [T]))))
+    (functionSignature mapAndReduce (functionArgList (functionArg (annotation [NotNull]) (typeSpecNullable (typeSpec [G])) text)) (functionConstraint (constraintGeneric G (typeSpecList (typeSpec [T]) (typeSpec [Iterable])))) (functionConstraint (constraintThrows (typeSpecList (typeSpec [IllegalException])))) (functionBody)))
   (unitFunction
-    (annotation (typeName Nullable))
+    (annotation [Nullable])
     (function
-      (functionResultDecl (typeSpecNullable (typeSpec (typeName int))))
-      (functionSignature readMyBook (functionArgList (functionArg (typeSpecNullable (typeSpec (typeName String))) text)) (functionBody))))
+      (functionResultDecl (typeSpecNullable (typeSpec [int])))
+      (functionSignature readMyBook (functionArgList (functionArg (typeSpecNullable (typeSpec [String])) text)) (functionBody))))
   (unitFunction
     (function
       (functionResultDecl)
-      (functionSignature readSomeBook (typeGenericSpec (typeNameList (typeName T))) (functionArgList (functionArg (typeSpecNullable (typeSpec (typeName String))) text)) (functionBody)))))
+      (functionSignature readSomeBook (typeGenericSpec (typeNameList [T])) (functionArgList (functionArg (typeSpecNullable (typeSpec [String])) text)) (functionBody)))))

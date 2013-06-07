@@ -11,11 +11,11 @@ import pada.compiler.antlr4.PadaParser;
 import java.io.IOException;
 import java.io.Writer;
 
-public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
+public class UnitTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
     private final T writer;
     private int indent = 0;
 
-    public CodeTreeWriter(T writer) {
+    public UnitTreeWriter(T writer) {
         this.writer = writer;
     }
 
@@ -44,7 +44,7 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
     }
 
     @Override
-    public T visitPackageName(@NotNull PadaParser.PackageNameContext ctx) {
+    public T visitTypeName(@NotNull PadaParser.TypeNameContext ctx) {
         write("[");
         int index = 0;
         for (PadaParser.IdentifierContext name : ctx.identifier()) {
@@ -53,7 +53,6 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
         }
         write("]");
         return defaultResult();
-
     }
 
     @Override
@@ -87,7 +86,7 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
         return defaultResult();
     }
 
-    private CodeTreeWriter write(String text) {
+    private UnitTreeWriter write(String text) {
         try {
             writer.append(text);
         } catch (IOException e) {
@@ -96,7 +95,7 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
         return this;
     }
 
-    private CodeTreeWriter write(char text) {
+    private UnitTreeWriter write(char text) {
         try {
             writer.append(text);
         } catch (IOException e) {
@@ -105,7 +104,7 @@ public class CodeTreeWriter<T extends Writer> extends PadaBaseVisitor<T> {
         return this;
     }
 
-    private CodeTreeWriter flush() {
+    private UnitTreeWriter flush() {
         try {
             writer.flush();
         } catch (IOException e) {

@@ -1,4 +1,4 @@
 (unit
   (unitPackage [a0000])
-  (unitImport [java.lang.String])
-  (unitImport [java.buffer.String] (importAlias BufferString)))
+  (unitImport (unitImportTarget [java.lang.String]))
+  (unitImport (unitImportTarget [java.buffer.String]) (importAlias BufferString)))
