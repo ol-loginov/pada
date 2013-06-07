@@ -1,0 +1,4 @@
+UNIT
+ PACKAGE(.a0000)
+ IMPORT(.java.lang.String)
+ IMPORT(.java.buffer.String AS BufferString)

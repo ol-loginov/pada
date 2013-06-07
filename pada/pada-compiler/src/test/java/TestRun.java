@@ -6,13 +6,34 @@ import pada.compiler.antlr4.PadaLexer;
 import pada.compiler.antlr4.PadaParser;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestRun {
     @Test
-    public void testAssetAll() throws IOException {
-        PadaLexer padaLexer = new PadaLexer(new ANTLRInputStream(getClass().getResourceAsStream("0000.pada")));
-        PadaParser padaParser = new PadaParser(new BufferedTokenStream(padaLexer));
-        padaParser.compilationUnit().accept(new CodeTreeWriter(new OutputStreamWriter(System.out)));
+    public void testAssetAll() throws IOException, URISyntaxException {
+        int assetIndex = -1;
+        while (TestHelper.hasAsset(String.format("%04d.pada", ++assetIndex))) {
+            testAsset(String.format("%04d", assetIndex));
+        }
+        assertEquals("some tests should present in assets", assetIndex, 4);
+    }
+
+    @Test
+    public void testAsset() throws IOException, URISyntaxException {
+        testAsset("0003");
+    }
+
+    private void testAsset(String assetName) throws URISyntaxException, IOException {
+        PadaLexer lexer = new PadaLexer(new ANTLRInputStream(getClass().getResourceAsStream(assetName + ".pada")));
+        PadaParser parser = new PadaParser(new BufferedTokenStream(lexer));
+        PadaParser.CompilationUnitContext unit = parser.compilationUnit();
+
+        String expected = TestHelper.readAsset(assetName + ".tree");
+        String actual = unit.accept(new CodeTreeWriter<>(new StringWriter())).toString();
+        assertEquals("validate tree of " + assetName, expected, actual);
     }
 }

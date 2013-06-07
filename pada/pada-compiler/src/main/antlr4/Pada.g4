@@ -1,41 +1,118 @@
 grammar Pada;
 
 // PARSER ======================================================================
-
 compilationUnit
-  : packageDecl? importDecl* (typeDecl)*
+  : packageDecl? 
+    importDecl* 
+    typeDecl*
   ;
 
+/* UNIT DECLARATION */
+
 packageDecl
-    : PACKAGE packageName
-    ;
+    : PACKAGE packageName;
 
 packageName
-    : Identifier (DOT Identifier)*
-    ;
+    : Identifier (Dot Identifier)*;
 
 importDecl
-    : IMPORT packageName (AS importAlias)?
-    ;
+    : IMPORT packageName (AS importAlias)?;
 
 importAlias
-    : Identifier
-    ;
+    : Identifier;
 
-typeDecl
-    :   classDecl
-    ;
+/* TYPE NAMING */
 
-classDecl
-    : typeMod*
-      CLASS
-    ;
+typeName
+    : (packageName Dot)? Identifier;
+
+typeGenericSpec
+    : BracketOpen (typeName (ListDelim typeName)* )? BracketClose;
+
+typeSpec
+    : typeName typeGenericSpec?;
+
+/* ANNOTATIONS */
+
+annotation
+    : AnnotationPrefix typeName annotationParamList?;
+
+annotationParamList
+    : ListOpen annotationParam (ListDelim annotationParam )* ListClose;
+
+annotationParam 
+    : (Identifier Equal)? expr;
+
+/* TYPE DECLARATIONS */
 
 typeMod
-    :   PUBLIC
-    |   ABSTRACT
-    |   FINAL
-    |   STATIC
+    : PUBLIC | FINAL | STATIC;
+
+typeDecl
+    : classDecl classBody?;
+
+classDecl
+    : annotation* typeMod* CLASS Identifier typeGenericSpec? classSuperList?
+    ;
+
+classSuperList
+    : Colon typeSpec (ListDelim typeSpec)*;
+
+classBody
+    : ScopeOpen typeMemberDecl* ScopeClose;
+
+/* CLASS MEMBERS */
+
+typeMemberMod
+    : PUBLIC | FINAL | STATIC;
+
+typeMemberDecl
+    : annotation* typeMemberMod* 
+      ( functionDecl
+      | fieldDecl 
+      | constructorDecl);
+
+fieldDecl
+    : typeSpec Question? Identifier;
+
+constructorDecl
+    : Identifier constructorParamList functionBody;
+
+constructorParamList
+    : ListOpen constructorParam (ListDelim constructorParam)* ListClose;
+
+constructorParam
+    : annotation* typeSpec Identifier;
+
+functionDecl
+    : functionResultDecl Identifier functionParameterList functionBody;
+
+functionParameterList
+    : ListOpen functionParameterDecl (ListDelim functionParameterDecl)* ListClose;
+
+functionParameterDecl
+    : annotation* typeSpec Identifier;
+
+functionResultDecl
+    : typeSpec;
+
+functionBody
+    : ScopeOpen expr* ScopeClose;
+
+/* EXPRESSIONS */
+
+expr 
+    : exprLiteral
+    | Identifier;
+
+exprLiteral
+    : BinaryLiteral
+    | CharacterLiteral
+    | DecimalLiteral
+    | FloatingPointLiteral
+    | HexLiteral
+    | OctalLiteral
+    | StringLiteral
     ;
 
 // LEXER =======================================================================
@@ -48,11 +125,24 @@ CLASS : 'class';
 INTERFACE : 'interface';
 PUBLIC : 'public';
 PRIVATE : 'private';
-ABSTRACT : 'abstract';
 FINAL : 'final';
 STATIC : 'static';
+SUPER : 'super';
 
-
+// fragments
+AnnotationPrefix : '@';
+ListOpen : '(';
+ListDelim : ',';
+ListClose : ')';
+BracketOpen : '<';
+BracketClose : '>';
+ScopeOpen : '{';
+ScopeClose : '}';
+Equal : '=';
+Colon : ':';
+Dot: '.';
+Question: '?';
+    
 HexLiteral
   // underscores may be freely inserted after first hex digit and before last
   : '0' ('x'|'X')
@@ -146,7 +236,12 @@ UnicodeEscape
   ;
 
 Identifier
-  : Letter (Letter|Digit)*
+  : Letter IdentifierTail*
+  ;
+
+IdentifierTail
+  : Letter
+  | Digit
   ;
 
 fragment
@@ -158,9 +253,6 @@ Letter
   ;
 
 // terminals
-NL: '\r\n' | '\r' | '\n';
-END: NL | EOF;
-DOT: '.';
-SPACE : [ \r\t\u000C\n]+ -> channel(HIDDEN);
-COMMENT : '/*' .*? '*/' -> channel(HIDDEN);
-LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN);
+SPACE : [ \r\t\u000C\n]+ -> skip;
+COMMENT : '/*' .*? '*/' -> skip;
+LINE_COMMENT : '//' ~[\r\n]* -> skip;
