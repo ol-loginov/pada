@@ -1,7 +1,25 @@
+import adad
+
 fun add1(int x, int y) {
-    return x + y + x;
+    ~x + y * x
+    ++x
+    y--    1
+    x++
+    return x + !y + x
+
 }
 
 fun add2(int x, int y) {
-    return x + (y + x);
+    a && b
+    b +a & c
+    d << 1
+    return - x + (y + x)
+}
+
+void add3() {
+    1 + 2 * 3
+    1 * 2 + 3
+    if(a==false) return 1
+    if(b==a) return 2
+    return 3
 }
