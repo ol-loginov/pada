@@ -13,10 +13,10 @@ unit
 /* UNIT DECLARATION */
 
 unitPackage
-    : annotation* PACKAGE typeName;
+    : annotation* 'package' typeName;
 
 unitImport
-    : IMPORT unitImportTarget (AS importAlias)?;
+    : 'import' unitImportTarget ('as' importAlias)?;
 
 unitImportTarget
     : typeName;
@@ -25,58 +25,54 @@ importAlias
     : identifier;
 
 /* TYPE NAMING */
-
 typeName
-    : (identifier Dot)* identifier;
+    : identifier ('.' identifier)*;
 
 typeNameList
-    : typeName (ListDelim typeName)*;
+    : typeName (',' typeName)*;
 
-typeGenericSpec
-    : BracketOpen typeNameList? BracketClose;
+typeArguments
+    : '<' typeArgument (',' typeArgument)* '>';
 
-typeSpec
-    : typeName typeGenericSpec?;
+typeArgument
+    : typeRefOrArray | '?';
 
-typeSpecList
-    : typeSpec (ListDelim typeSpec)*;
+typeRefOrArray
+    : typeRef ('[' ']')*;
 
-typeSpecNullable
-    : typeSpec Question?;
+typeRef
+    : typeName typeArguments?;
+
+typeRefList
+    : typeRef (',' typeRef)*;
+
+typeRefN
+    : typeRef '?'?;
 
 /* ANNOTATIONS */
 
 annotation
-    : AnnotationPrefix typeName annotationParamList?;
+    : '@' typeName annotationParamList?;
 
 annotationParamList
-    : ListOpen annotationParam (ListDelim annotationParam )* ListClose;
+    : '(' annotationParam (',' annotationParam )* ')';
 
 annotationParam 
-    : (identifier Equal)? annotationExpr;
+    : (identifier '=')? annotationExpr;
 
 annotationExpr
-    : annotationExprArray
+    : '{' (annotationExpr (',' annotationExpr)*)? '}'
     | annotation      
-    | expr;
-
-annotationExprArray
-    : ScopeOpen (annotationExpr (ListDelim annotationExpr)*)? ScopeClose;
+    | expression;
 
 /* EXTENSION FUNCTIONS */
 unitFunction
     : annotation* function;
 
 unitExtension
-    : annotation* functionResultDecl extensionTarget Dot functionSignature;
-
-extensionTarget
-    : typeSpec;
+    : annotation* functionResultDecl typeRef '.' functionSignature;
 
 /* TYPE DECLARATIONS */
-
-typeMod
-    : PUBLIC | FINAL | STATIC;
 
 typeDeclName
     : identifier;
@@ -85,19 +81,25 @@ unitClass
     : classDecl classBody?;
 
 classDecl
-    : annotation* typeMod* CLASS typeDeclName typeGenericSpec? classSuperList?
+    : annotation* modifier* 'class' typeDeclName typeArguments? classSuperList?
     ;
 
 classSuperList
-    : Colon typeSpec (ListDelim typeSpec)*;
+    : ':' typeRef (',' typeRef)*;
 
 classBody
-    : ScopeOpen typeMemberDecl* ScopeClose;
+    : '{' typeMemberDecl* '}';
 
 /* TYPE MEMBERS */
 
-typeMemberMod
-    : PUBLIC | FINAL | STATIC;
+modifier
+    : 'public' 
+    | 'final' 
+    | 'static' 
+    | 'native' 
+    | 'synchronized' 
+    | 'transient' 
+    | 'volatile';
 
 typeMemberDecl
     : typeFunctionDecl
@@ -105,88 +107,225 @@ typeMemberDecl
     | typeConstructorDecl;
 
 typeFieldDecl
-    : annotation* typeMemberMod* typeSpecNullable identifier;
+    : annotation* modifier* typeRefN identifier;
 
 typeConstructorDecl
-    : annotation* typeMemberMod* identifier typeConstructorParamList functionBody?;
+    : annotation* modifier* identifier typeConstructorParamList functionBody?;
 
 typeConstructorParamList
-    : ListOpen typeConstructorParam (ListDelim typeConstructorParam)* ListClose;
+    : '(' typeConstructorParam (',' typeConstructorParam)* ')';
 
 typeConstructorParam
-    : annotation* typeSpecNullable identifier;
+    : annotation* typeRefN identifier;
 
 typeFunctionDecl
-    : annotation* typeMemberMod* function;
+    : annotation* modifier* function;
 
 /* CONSTRAINTS */
 
 constraintThrows
-    : THROWS typeSpecList;
+    : 'throws' typeRefList;
 
 constraintGeneric
-    : WHERE identifier Colon typeSpecList;
+    : 'where' identifier ':' typeRefList;
 
 /* FUNCTIONS */
 function
-    : functionResultDecl functionSignature;
+    : functionResultDecl functionSignature functionBody?;
              
 functionSignature
-    : identifier typeGenericSpec? functionArgList functionConstraint* functionBody?;
+    : identifier typeArguments? functionArgList functionConstraint*;
 
 functionConstraint
     : constraintThrows
     | constraintGeneric;
 
 functionArgList
-    : ListOpen functionArg (ListDelim functionArg)* ListClose;
+    : '(' (functionArg (',' functionArg)*)? ')';
 
 functionArg
-    : annotation* typeSpecNullable identifier;
+    : annotation* typeRefN identifier;
 
 functionResultDecl
-    : VOID
-    | typeSpecNullable;
+    : 'void'
+    | typeRefN;
 
 functionBody
-    : ScopeOpen expr* ScopeClose;
+    : '{' statement* '}';
+
+statement
+    : block
+    | 'if' parExpression statement ('else' statement)?
+    | 'for' '(' forControl ')' statement
+    | 'while' parExpression statement
+    | 'do' statement 'while' parExpression
+    | tryStatement
+    | 'switch' parExpression switchBlock
+    | 'synchronized' parExpression block
+    | 'continue'
+    | 'break'
+    | 'return' expression?
+    | 'throw' expression
+    | statementExpression;
+
+
+switchBlock
+  : '{' switchBlockStatementGroup* switchLabel* '}';
+
+switchBlockStatementGroup
+  : switchLabel+ blockStatement*;
+
+switchLabel
+  : 'case' constantExpression ':'
+  | 'case' identifier ':'
+  | 'default' ':';
+
+constantExpression
+  : expression
+  ;
+
+tryStatement
+  // must contain at least one resource, catch, or finally
+  : 'try' '(' resources ')' block tryStatementLeave?
+  | 'try' block tryStatementLeave;
+
+tryStatementLeave
+    : catchClause+ ('finally' block)?
+    | 'finally' block;
+
+catchClause
+  : 'catch' '(' typeName ('|' typeName)* Identifier ')' block;
+
+resources
+  // Semicolon may be ommited for last resource
+  : resource (';' resource)*;
+
+resource
+  : resourceVar? expression
+  ;
+
+resourceVar
+    : ('var' | typeRefN)? variableDeclaratorId '=';
+
+forControl
+  : foreachControl
+  | forInit? ';' expression? ';' forUpdate?
+  ;
+
+forInit
+  : localVariableDeclaration
+  | expressionList;
+
+forUpdate
+  : expressionList;
+
+foreachControl
+  : ('var' | typeRefN) Identifier ':' expression;
+
+parExpression
+    : '(' expression ')';
+
+block
+    : '{' blockStatement* '}';
+
+blockStatement
+    : localVariableDeclaration
+    | statement;
+
+localVariableDeclaration
+    : ('var' | typeRefN) variableDeclarators;
+
+variableDeclarators
+  : variableDeclarator (',' variableDeclarator)*
+  ;
+
+variableDeclarator
+  : variableDeclaratorId ('=' variableInitializer)?
+  ;
+
+variableDeclaratorId
+  : Identifier ('[' ']')*
+  ;
+
+variableInitializer
+  : arrayInitializer
+  | expression
+  ;
+
+arrayInitializer
+  : '{' ( variableInitializer (',' variableInitializer)* )? '}';
+
+statementExpression
+    : expression;
 
 /* EXPRESSIONS */
 
 identifier
     : Identifier;
 
-expr 
-    : exprCommand
-    | exprLiteral
-    | identifier
-//    | exprBinary
-    | exprUnary
-    | exprGroup;
+expression
+  : primary                                                     #exprPrimary
+  | expression '.' Identifier                                   #exprMemberAccess
+  | expression '.' 'this'                                       #exprOuterClassAccess
+  | expression '.' 'super' '(' expressionList? ')'              #exprSuperClassCall
+//  | expression '.' 'new' Identifier '(' expressionList? ')'
+//  | expression '.' 'super' '.' Identifier arguments?
+//  | expression '.' explicitGenericInvocation
+  | expression '[' expression ']'                               #exprArrayAccess
+  | expression '(' expressionList? ')'                          #exprFuncall
+  | expression ('++'|'--')                                      #exprPostOp
+  | ('+'|'-'|'++'|'--') expression                              #exprPreOp
+  | ('~'|'!') expression                                        #exprLogicalUnary
+//  | '(' typeRef ')' expression
+//  | 'new' creator
+  | expression ('*'|'/'|'%') expression                         #exprMul
+  | expression ('+'|'-') expression                             #exprAdd
+  | expression ('<<' | '>>>' | '>>') expression                 #exprShift
+  | expression ('<=' | '>=' | '>' | '<' ) expression            #exprLogical
+//  | expression 'instanceof' typeRef
+  | expression ('==' | '!=') expression                         #exprEquality
+  | expression '&' expression                                   #exprBinaryAnd
+  | expression '^' expression                                   #exprXor
+  | expression '|' expression                                   #exprBinaryOr
+  | expression '&&' expression                                  #exprAnd
+  | expression '||' expression                                  #exprOr
+  | expression '?' expression ':' expression                    #exprTernary
+  | expression
+    ( '^='      <assoc=right>
+    | '+='      <assoc=right>
+    | '-='      <assoc=right>
+    | '*='      <assoc=right>
+    | '/='      <assoc=right>
+    | '&='      <assoc=right>
+    | '|='      <assoc=right>
+    | '='       <assoc=right>
+    | '>>='     <assoc=right>
+    | '>>>='    <assoc=right>
+    | '<<='     <assoc=right>
+    | '%='      <assoc=right>
+    )
+    expression                                                  #exprAssign
+  ;
 
-exprGroup
-    : ListOpen expr ListClose;
+primary
+  : '(' expression ')'
+  | 'this'
+  | 'super'
+  | literal
+  | Identifier
+//  | typeRef '.' 'class'
+  | 'void' '.' 'class'
+  ;
 
-exprUnary
-    : (Minus | Plus | Exclamation) exprUnaryTail;
+expressionList
+  : expression (',' expression)*
+  ;
 
-exprUnaryTail
-    : expr;
-
-exprBinary
-    : exprAdditivity;
-
-exprAdditivity
-    : expr (Plus|Minus) expr;
-
-exprCommand
-    : RETURN
-    | BREAK
-    | CONTINUE;
-
-exprLiteral
+literal
     : BinaryLiteral
-    | BooleanLiteral
+    | 'true'
+    | 'false'
+    | 'null'
     | CharacterLiteral
     | DecimalLiteral
     | FloatingPointLiteral
@@ -197,55 +336,6 @@ exprLiteral
 
 // LEXER =======================================================================
 
-// keywords
-AS : 'as';
-IMPORT : 'import';
-PACKAGE : 'package';
-CLASS : 'class';
-INTERFACE : 'interface';
-PUBLIC : 'public';
-PRIVATE : 'private';
-FINAL : 'final';
-STATIC : 'static';
-SUPER : 'super';
-ANNOTATION : 'annotation';
-VOID : 'void';
-THROWS : 'throws';
-WHERE : 'where';
-RETURN : 'return';
-BREAK : 'break';
-CONTINUE : 'continue';
-
-// fragments
-AnnotationPrefix : '@';
-ListOpen : '(';
-ListDelim : ',';
-ListClose : ')';
-BracketOpen : '<';
-BracketClose : '>';
-ScopeOpen : '{';
-ScopeClose : '}';
-Equal : '=';
-Colon : ':';
-Dot: '.';
-Question: '?';
-Plus: '+';
-Minus: '-';
-Mult: '*';
-Div: '/';
-Mod: '%';
-Exclamation : '!';
-And : '&&';
-Or : '||';
-Xor : '^';
-BinaryAnd : '&';
-BinaryOr : '|';
-ShiftLeft : '<<';
-ShiftRight : '>>';
-
-BooleanLiteral
-    : 'true' | 'false';
-    
 HexLiteral
   // underscores may be freely inserted after first hex digit and before last
   : '0' ('x'|'X')

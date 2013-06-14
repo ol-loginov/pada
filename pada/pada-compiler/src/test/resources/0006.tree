@@ -1,0 +1,16 @@
+(unit
+  (unitFunction
+    (function
+      (functionResultDecl (typeSpecNullable (typeSpec [fun])))
+      (functionSignature add1 (functionArgList (functionArg (typeSpecNullable (typeSpec [int])) x) (functionArg (typeSpecNullable (typeSpec [int])) y)))
+      (functionBody (statement (expression (expression (expression (primary))) (expression (expression (primary)) (expression (expression (primary)))))) (statement (expression (primary))) (statement (expression (expression (primary)))) (statement (expression (primary (literal)))) (statement (expression (expression (primary)))) (statement (expression (expression (expression (primary)) (expression (expression (primary)))) (expression (primary)))))))
+  (unitFunction
+    (function
+      (functionResultDecl (typeSpecNullable (typeSpec [fun])))
+      (functionSignature add2 (functionArgList (functionArg (typeSpecNullable (typeSpec [int])) x) (functionArg (typeSpecNullable (typeSpec [int])) y)))
+      (functionBody (statement (expression (expression (primary)) (expression (primary)))) (statement (expression (expression (expression (primary)) (expression (primary))) (expression (primary)))) (statement (expression (expression (primary)) (expression (primary (literal))))) (statement (expression (expression (expression (primary))) (expression (primary (expression (expression (primary)) (expression (primary))))))))))
+  (unitFunction
+    (function
+      (functionResultDecl)
+      (functionSignature add3 (functionArgList))
+      (functionBody (statement (expression (expression (primary (literal))) (expression (expression (primary (literal))) (expression (primary (literal)))))) (statement (expression (expression (expression (primary (literal))) (expression (primary (literal)))) (expression (primary (literal))))) (statement (expression (primary))) (statement (expression (primary (expression (expression (primary)) (expression (primary (literal))))))) (statement (expression (primary (literal)))) (statement (expression (primary))) (statement (expression (primary (expression (expression (primary)) (expression (primary)))))) (statement (expression (primary (literal)))) (statement (expression (primary (literal))))))))
