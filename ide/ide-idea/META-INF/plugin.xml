@@ -21,5 +21,6 @@
     <actions/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <lang.parserDefinition language="Pada" implementationClass="pada.ide.idea.lang.PadaParserDefinition"/>
     </extensions>
 </idea-plugin>

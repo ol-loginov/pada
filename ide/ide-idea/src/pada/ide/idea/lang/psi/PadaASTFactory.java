@@ -1,4 +1,4 @@
-package pada.ide.idea.psi;
+package pada.ide.idea.lang.psi;
 
 public class PadaASTFactory extends ASTFactory {
     public CompositeElement createComposite(final IElementType type) {
