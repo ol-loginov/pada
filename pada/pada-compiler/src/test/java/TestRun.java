@@ -1,12 +1,9 @@
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BufferedTokenStream;
 import org.junit.Test;
-import pada.compiler.UnitCodeGenerator;
-import pada.compiler.UnitErrorListener;
-import pada.compiler.antlr4.PadaLexer;
-import pada.compiler.antlr4.PadaParser;
+import pada.compiler.Assembler;
+import pada.compiler.SourceDelegate;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
@@ -28,18 +25,20 @@ public class TestRun {
 
     // /home/oregu/Projects/pada/github/pada/pada-compiler/src/test/java/TestRun.java:[38,36] ')' expected
     private void testAsset(String assetName) throws URISyntaxException, IOException {
-        String fileName = assetName + ".pada";
+        String sourceName = assetName + ".pada";
+        InputStream source = getClass().getResourceAsStream(sourceName);
 
-        UnitErrorListener parserError = new UnitErrorListener(fileName);
-        PadaLexer lexer = new PadaLexer(new ANTLRInputStream(getClass().getResourceAsStream(fileName)));
-        PadaParser parser = new PadaParser(new BufferedTokenStream(lexer));
-        parser.addErrorListener(parserError);
-        PadaParser.UnitContext unit = parser.unit();
+        Assembler assembler = new Assembler();
+        assembler.addUnit(new SourceDelegate(source, sourceName));
 
-        UnitCodeGenerator sourceGenerator = new UnitCodeGenerator();
+        assertEquals(0, assembler.getErrorCount());
 
-        String expected = TestHelper.readAsset(assetName + ".tree");
-        String actual = "";
-        assertEquals("validate tree of " + assetName, expected, actual + TestHelper.join(parserError.getErrorList(), "\n"));
+//        PadaParser.UnitContext unit = parser.unit();
+//
+//        UnitCodeGenerator sourceGenerator = new UnitCodeGenerator();
+//
+//        String expected = TestHelper.readAsset(assetName + ".tree");
+//        String actual = "";
+//        assertEquals("validate tree of " + assetName, expected, actual + TestHelper.join(parserError.getErrorList(), "\n"));
     }
 }
