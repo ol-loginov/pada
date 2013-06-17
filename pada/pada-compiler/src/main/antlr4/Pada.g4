@@ -314,7 +314,7 @@ primary
   | literal
   | Identifier
 //  | typeRef '.' 'class'
-  | 'void' '.' 'class'
+//  | 'void' '.' 'class'
   ;
 
 expressionList
@@ -323,9 +323,8 @@ expressionList
 
 literal
     : BinaryLiteral
-    | 'true'
-    | 'false'
-    | 'null'
+    | BooleanLiteral
+    | NullLiteral
     | CharacterLiteral
     | DecimalLiteral
     | FloatingPointLiteral
@@ -335,6 +334,87 @@ literal
     ;
 
 // LEXER =======================================================================
+KThis: 'this';
+KVoid: 'void';
+KSuper: 'super';
+KClass: 'class';
+KCase: 'case';
+KSwitch: 'switch';
+KContinue: 'continue';
+KDo: 'do';
+KThrow: 'throw';
+KThrows: 'throws';
+KFinally: 'finally';
+KTransient: 'transient';
+KDefault: 'default';
+KPublic: 'public';
+KSynchronized: 'synchronized';
+KWhile: 'while';
+KPackage: 'package';
+KAs: 'as';
+KTry: 'try';
+KFinal: 'final';
+KOverride: 'override';
+KBreak: 'break';
+KCatch: 'catch';
+KElse: 'else';
+KIf: 'if';
+KImport: 'import';
+KFor: 'for';
+KReturn: 'return';
+KWhere: 'where';
+KStatic: 'static';
+KVolatile: 'volatile';
+KNative: 'native';
+KVar: 'var';
+             
+ParGroupL: '(';
+ParGroupR: ')';
+BraGroupL: '{';
+BraGroupR: '}';
+SqrGroupL: '[';
+SqrGroupR: ']';
+Lt: '<';
+Gt: '>';
+Lte: '<=';
+Gte: '>=';
+Eq: '==';
+Neq: '!=';
+Dec: '--';
+Inc: '++';
+And: '&&';
+Or: '||';
+BitAnd: '&';
+BitAndA: '&=';
+BitOr: '|';
+BitOrA: '|=';
+Mul: '*';
+MulA: '*=';
+Div: '/';
+DivA: '/=';
+Mod: '%';
+ModA: '%=';
+Minus: '-';
+MinusA: '-=';
+Plus: '+';
+PlusA: '+=';
+ShiftL2: '<<';
+ShiftL2A: '<<=';
+ShiftR2: '>>';
+ShiftR2A: '>>=';
+ShiftR3: '>>>';
+ShiftR3A: '>>>=';
+At: '@';
+Exclamation: '!';
+Assign: '=';
+Comma: ',';
+Dot: '.';
+Colon: ':';
+Question: '?';
+Xor: '^';
+XorA: '^=';
+SemiColon: ';';
+Tilda: '~';
 
 HexLiteral
   // underscores may be freely inserted after first hex digit and before last
@@ -363,6 +443,10 @@ BinaryLiteral
     BinaryDigit ('_'* BinaryDigit)*
     IntegerTypeSuffix?
   ;
+
+BooleanLiteral: 'false' | 'true';
+
+NullLiteral: 'null';
 
 fragment
 BinaryDigit : ('0'|'1') ;
