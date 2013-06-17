@@ -432,6 +432,7 @@ Identifier
   : Letter IdentifierTail*
   ;
 
+fragment
 IdentifierTail
   : Letter
   | Digit
@@ -446,6 +447,6 @@ Letter
   ;
 
 // terminals
-SPACE : [ \r\t\u000C\n]+ -> skip;
-COMMENT : '/*' .*? '*/' -> skip;
-LINE_COMMENT : '//' ~[\r\n]* -> skip;
+Space : [ \r\t\u000C\n]+ -> skip;
+Comment : '/*' .*? '*/' -> skip;
+LineComment : '//' ~[\r\n]* -> skip;

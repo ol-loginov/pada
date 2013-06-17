@@ -1,15 +1,21 @@
 package pada.ide.idea;
 
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.fileTypes.LanguageFileType;
+import com.intellij.openapi.vfs.CharsetToolkit;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.encoding.EncodingManager;
+
 import javax.swing.*;
 import java.nio.charset.Charset;
 
-public class PadaFile extends LanguageFileType {
-    public static final PadaFile INSTANCE = new PadaFile();
+public class PadaFileType extends LanguageFileType {
+    public static final PadaFileType INSTANCE = new PadaFileType();
     public static final String TYPE_NAME = "Pada";
     public static final String DEFAULT_EXTENSION = "pada";
     public static final String DOT_DEFAULT_EXTENSION = "." + DEFAULT_EXTENSION;
 
-    private PadaFile() {
+    private PadaFileType() {
         super(PadaLanguage.INSTANCE);
     }
 
@@ -34,8 +40,7 @@ public class PadaFile extends LanguageFileType {
 
     public String getCharset(VirtualFile file, final byte[] content) {
         Charset charset = EncodingManager.getInstance().getDefaultCharsetForPropertiesFiles(file);
-        String defaultCharsetName = charset == null ? CharsetToolkit.getDefaultSystemCharset().name() : charset.name();
-        return defaultCharsetName;
+        return charset == null ? CharsetToolkit.getDefaultSystemCharset().name() : charset.name();
     }
 }
 

@@ -1,16 +1,16 @@
-package pada.ide.idea.lang;
+package pada.ide.idea.lang.antlr;
 
 import com.intellij.lexer.LexerBase;
-import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharSequenceReader;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.Token;
 import org.jetbrains.annotations.Nullable;
+import pada.ide.idea.lang.LangTokens;
 
 import java.io.IOException;
 
-public class PadaLexer extends LexerBase {
+public class IdeaPadaLexer extends LexerBase {
     pada.compiler.antlr4.PadaLexer delegate;
 
     private CharSequence buffer;
@@ -31,6 +31,7 @@ public class PadaLexer extends LexerBase {
         } catch (IOException e) {
             throw new IllegalStateException("cannot lexer", e);
         }
+        advance();
     }
 
     @Override
@@ -43,10 +44,7 @@ public class PadaLexer extends LexerBase {
     public IElementType getTokenType() {
         if (token == null)
             return null;
-        switch (token.getType()) {
-            case pada.compiler.antlr4.PadaLexer.BinaryLiteral:
-                return TokenType.WHITE_SPACE;
-        }
+        return LangTokens.Factory.findByAntlrType(token.getType());
     }
 
     @Override
@@ -61,7 +59,7 @@ public class PadaLexer extends LexerBase {
 
     @Override
     public void advance() {
-        token = delegate.getToken();
+        token = delegate.nextToken();
     }
 
     @Override

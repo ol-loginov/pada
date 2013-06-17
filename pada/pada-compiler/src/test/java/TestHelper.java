@@ -19,22 +19,31 @@ public class TestHelper {
         if (is == null) throw new IllegalArgumentException("asset " + path + " is not found");
 
         StringBuilder stringBuilder = new StringBuilder();
-        try (InputStreamReader isr = new InputStreamReader(is, Charset.forName("utf-8"))) {
+
+        InputStreamReader isr = new InputStreamReader(is, Charset.forName("utf-8"));
+        try {
             CharBuffer buffer = CharBuffer.allocate(1024 * 100);
             do {
                 int bufferLength = buffer.position();
                 buffer.rewind();
                 stringBuilder.append(buffer.subSequence(0, bufferLength));
             } while (isr.read(buffer) > 0);
+
+        } finally {
+            isr.close();
         }
         return stringBuilder.toString();
     }
 
     public static boolean hasAsset(String path) {
-        try (InputStream resource = TestHelper.class.getResourceAsStream(path)) {
+        InputStream resource = TestHelper.class.getResourceAsStream(path);
+        try {
             return resource != null;
-        } catch (IOException e) {
-            return false;
+        } finally {
+            if (resource != null) try {
+                resource.close();
+            } catch (IOException e) {
+            }
         }
     }
 }

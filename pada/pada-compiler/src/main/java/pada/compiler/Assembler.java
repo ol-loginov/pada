@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Assembler {
-    private final List<SourceError> errorList = new ArrayList<>();
+    private final List<SourceError> errorList = new ArrayList<SourceError>();
 
     public void addUnit(Source source) {
         CharStream charStream;

@@ -1,5 +1,8 @@
 package pada.ide.idea;
 
+import com.intellij.CommonBundle;
+import org.jetbrains.annotations.PropertyKey;
+
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
@@ -21,7 +24,7 @@ public class Res {
         if (ourBundle != null) bundle = ourBundle.get();
         if (bundle == null) {
             bundle = ResourceBundle.getBundle(PATH_TO_BUNDLE);
-            ourBundle = new SoftReference<>(bundle);
+            ourBundle = new SoftReference<ResourceBundle>(bundle);
         }
         return bundle;
     }

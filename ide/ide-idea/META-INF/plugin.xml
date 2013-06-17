@@ -21,6 +21,8 @@
     <actions/>
 
     <extensions defaultExtensionNs="com.intellij">
+        <fileTypeFactory implementation="pada.ide.idea.PadaFileTypeFactory"/>
+
         <lang.parserDefinition language="Pada" implementationClass="pada.ide.idea.lang.PadaParserDefinition"/>
     </extensions>
 </idea-plugin>
