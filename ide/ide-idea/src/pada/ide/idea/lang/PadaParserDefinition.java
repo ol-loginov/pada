@@ -18,7 +18,7 @@ import pada.ide.idea.lang.antlr.IdeaPadaParser;
 import pada.ide.idea.lang.psi.PadaFileImpl;
 import pada.ide.idea.lang.psi.stubs.elements.PadaStubFileElementType;
 
-public class PadaParserDefinition implements ParserDefinition, LangTokens {
+public class PadaParserDefinition implements ParserDefinition {
     public static final IStubFileElementType PADA_FILE = new PadaStubFileElementType(PadaLanguage.INSTANCE);
 
     @NotNull
@@ -36,12 +36,12 @@ public class PadaParserDefinition implements ParserDefinition, LangTokens {
 
     @NotNull
     public TokenSet getWhitespaceTokens() {
-        return TokenSet.EMPTY;
+        return TokenSet.create(LangTokens.Space);
     }
 
     @NotNull
     public TokenSet getCommentTokens() {
-        return TokenSet.EMPTY;
+        return TokenSet.create(LangTokens.LineComment, LangTokens.Comment);
     }
 
     @NotNull
