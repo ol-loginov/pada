@@ -14,8 +14,8 @@ import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import pada.compiler.antlr4.PadaLexer;
 import pada.ide.idea.PadaLanguage;
-import pada.ide.idea.lang.antlr.IdeaPadaLexer;
-import pada.ide.idea.lang.antlr.IdeaPadaParser;
+import pada.ide.idea.lang.antlr.AntlrLexerAdapter;
+import pada.ide.idea.lang.antlr.AntlrParserAdapter;
 import pada.ide.idea.lang.psi.PadaFileImpl;
 import pada.ide.idea.lang.psi.stubs.elements.PadaStubFileElementType;
 
@@ -24,11 +24,11 @@ public class PadaParserDefinition implements ParserDefinition {
 
     @NotNull
     public Lexer createLexer(Project project) {
-        return new IdeaPadaLexer();
+        return new AntlrLexerAdapter();
     }
 
     public PsiParser createParser(Project project) {
-        return new IdeaPadaParser();
+        return new AntlrParserAdapter();
     }
 
     public IFileElementType getFileNodeType() {

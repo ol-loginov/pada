@@ -1,7 +1,6 @@
 package pada.ide.idea.lang;
 
 import com.intellij.psi.tree.IElementType;
-import org.antlr.v4.runtime.Token;
 import pada.compiler.antlr4.PadaLexer;
 import pada.ide.idea.PadaLanguage;
 
@@ -11,11 +10,8 @@ public final class LangTokens {
 
     private LangTokens() {
         for (int i = 0; i < PadaLexer.tokenNames.length; ++i) {
-            tokens[i] = new PadaToken(PadaLexer.tokenNames[i], i);
+            tokens[i] = new PadaToken(PadaLexer.tokenNames[i]);
         }
-        findByAntlrType(PadaLexer.Space).skip();
-        findByAntlrType(PadaLexer.Comment).skip();
-        findByAntlrType(PadaLexer.LineComment).skip();
     }
 
     public PadaToken findByAntlrType(int antlrType) {
@@ -29,25 +25,23 @@ public final class LangTokens {
     }
 
     public static class PadaToken extends IElementType {
-        private final int antlrType;
-        private int antlrChannel = Token.DEFAULT_CHANNEL;
+        //private final Token antlrToken;
 
-        public PadaToken(String debugName, int antlrType) {
+        public PadaToken(String debugName) {
             super(debugName, PadaLanguage.INSTANCE);
-            this.antlrType = antlrType;
         }
 
-        public int getAntlrType() {
-            return antlrType;
-        }
-
-        public int getAntlrChannel() {
-            return antlrChannel;
-        }
-
-        public PadaToken skip() {
-            this.antlrChannel = Token.HIDDEN_CHANNEL;
-            return this;
-        }
+//        private PadaToken(String debugName, Token antlrToken) {
+//            super(debugName, PadaLanguage.INSTANCE, antlrToken == null);
+//            this.antlrToken = antlrToken;
+//        }
+//
+//        public Token getAntlrToken() {
+//            return antlrToken;
+//        }
+//
+//        public PadaToken assignToken(Token token) {
+//            return new PadaToken(toString(), token);
+//        }
     }
 }

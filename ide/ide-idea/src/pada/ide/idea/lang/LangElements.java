@@ -1,6 +1,5 @@
 package pada.ide.idea.lang;
 
-import pada.compiler.antlr4.PadaLexer;
 import pada.compiler.antlr4.PadaParser;
 
 public final class LangElements {
