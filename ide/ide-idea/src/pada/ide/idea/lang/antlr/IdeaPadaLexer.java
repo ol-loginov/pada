@@ -20,6 +20,7 @@ public class IdeaPadaLexer extends LexerBase {
     int state;
     Token token;
 
+
     @Override
     public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
         this.state = initialState;
@@ -44,7 +45,7 @@ public class IdeaPadaLexer extends LexerBase {
     public IElementType getTokenType() {
         if (token == null)
             return null;
-        return LangTokens.Factory.findByAntlrType(token.getType());
+        return LangTokens.instance().findByAntlrType(token.getType());
     }
 
     @Override

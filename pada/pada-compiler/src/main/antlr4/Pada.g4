@@ -531,6 +531,6 @@ Letter
   ;
 
 // terminals
-Space : [ \r\t\u000C\n]+ -> skip;
-Comment : '/*' .*? '*/' -> skip;
-LineComment : '//' ~[\r\n]* -> skip;
+Space : [ \r\t\u000C\n]+;
+Comment : '/*' .*? '*/';
+LineComment : '//' ~[\r\n]*;
