@@ -5,7 +5,7 @@ unit
   : unitPackage? 
     unitImport* 
     ( unitClass
-    | unitExtension
+    | unitExtension 
     | unitFunction
     )*
   ;
@@ -531,6 +531,6 @@ Letter
   ;
 
 // terminals
-Space : [ \r\t\u000C\n]+;
-Comment : '/*' .*? '*/';
-LineComment : '//' ~[\r\n]*;
+Space : [ \r\t\u000C\n]+ -> skip;
+Comment : '/*' .*? '*/' -> skip;
+LineComment : '//' ~[\r\n]* -> skip;
