@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.RuleNode;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.jetbrains.annotations.NotNull;
 import pada.compiler.antlr4.PadaLexer;
 import pada.compiler.antlr4.PadaParser;
@@ -22,29 +23,33 @@ import pada.ide.idea.lang.PadaParserDefinition;
 import java.util.*;
 
 public class AntlrParserAdapter implements PsiParser {
-    private static void trace(String message) {
+    //private static final Logger LOG = Logger.getInstance(AntlrParserAdapter.class);
+
+    public static void debug(String message) {
         Log.print(message);
         Log.flush();
     }
 
     @NotNull
     @Override
-    public ASTNode parse(IElementType root, final PsiBuilder builder) {
+    public synchronized ASTNode parse(IElementType root, final PsiBuilder builder) {
+        builder.setDebugMode(true);
+        debug("parse: " + builder.getOriginalText());
+        debug("parse length: " + builder.getOriginalText().length());
+
         MarkerFactoryListener markerFactory = new MarkerFactoryListener(builder);
 
         PadaParser parser = createParser(builder);
-        parser.unit().accept(markerFactory);
+        PadaParser.UnitContext parserResult = parser.unit();
+        parserResult.accept(markerFactory);
 
         PsiBuilder.Marker unitMarker = builder.mark();
-        try {
-            while (builder.getTokenType() != null) {
-                markerFactory.actions.completeActions(false);
-                builder.advanceLexer();
-            }
-            markerFactory.actions.completeActions(true);
-        } finally {
-            unitMarker.done(PadaParserDefinition.PADA_FILE);
+        while (builder.getTokenType() != null) {
+            markerFactory.actions.completeActions(false);
+            builder.advanceLexer();
         }
+        markerFactory.actions.completeActions(true);
+        unitMarker.done(PadaParserDefinition.PADA_FILE);
 
         Log.flush();
         return builder.getTreeBuilt();
@@ -65,9 +70,10 @@ public class AntlrParserAdapter implements PsiParser {
             this.psiBuilder = psiBuilder;
         }
 
-        public void add(int index, PsiMarkerAction action) {
+        public int add(int index, PsiMarkerAction action) {
             action.index = ++actionIndex;
             requireList(actions, index).add(action);
+            return action.index;
         }
 
         private List<PsiMarkerAction> requireList(Map<Integer, List<PsiMarkerAction>> map, int index) {
@@ -82,12 +88,16 @@ public class AntlrParserAdapter implements PsiParser {
             Iterator<Map.Entry<Integer, List<PsiMarkerAction>>> iterator = actions.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Integer, List<PsiMarkerAction>> kv = iterator.next();
-                if (!hard && psiBuilder.getCurrentOffset() < kv.getKey())
+
+                boolean psiBuilderTarget = psiBuilder.getCurrentOffset() >= kv.getKey() || psiBuilder.rawTokenTypeStart(1) == kv.getKey();
+                if (!hard && !psiBuilderTarget) {
                     break;
+                }
+
                 Collections.sort(kv.getValue(), new Comparator<PsiMarkerAction>() {
                     @Override
                     public int compare(PsiMarkerAction o1, PsiMarkerAction o2) {
-                        return Integer.compare(o1.index, o2.index);
+                        return o1.index - o2.index;
                     }
                 });
                 for (PsiMarkerAction action : kv.getValue()) {
@@ -100,6 +110,11 @@ public class AntlrParserAdapter implements PsiParser {
 
     static class ObjectRef<T> {
         public T value;
+
+        @Override
+        public String toString() {
+            return value == null ? "<null>" : value.toString();
+        }
     }
 
     static abstract class PsiMarkerAction {
@@ -121,28 +136,56 @@ public class AntlrParserAdapter implements PsiParser {
 
         @Override
         public PsiMarker visitErrorNode(final ErrorNode node) {
-            Interval interval = adjust(node.getSymbol().getStartIndex(), node.getSymbol().getStopIndex());
+            Interval interval = intervalOf(node);
             final ObjectRef<PsiBuilder.Marker> marker = new ObjectRef<PsiBuilder.Marker>();
+
+            debug("register error at " + interval);
             actions.add(interval.a, new PsiMarkerAction() {
                 @Override
                 void run(PsiBuilder builder) {
-                    trace("enter error at " + builder.getCurrentOffset());
+                    debug("enter error at " + builder.getCurrentOffset());
                     marker.value = builder.mark();
                 }
             });
             actions.add(interval.b, new PsiMarkerAction() {
                 @Override
                 public void run(PsiBuilder builder) {
-                    trace("leave error at " + builder.getCurrentOffset());
+                    debug("leave error at " + builder.getCurrentOffset());
                     marker.value.error(node.getText());
+                    marker.value = null;
                 }
             });
             return defaultResult();
         }
 
-        private Interval adjust(int a, int b) {
-            a = a == -1 ? Integer.MAX_VALUE - 1 : a;
-            b = b == -1 ? Integer.MAX_VALUE - 1 : b;
+        private Interval intervalOf(TerminalNode node) {
+            int a = node.getSymbol().getStartIndex();
+            int b = node.getSymbol().getStopIndex();
+            a = a == -1 ? Integer.MAX_VALUE : a;
+            b = b == -1 ? Integer.MAX_VALUE : b;
+            return (a <= b) ? new Interval(a, b) : new Interval(b, a);
+        }
+
+        private Interval intervalOf(ParserRuleContext ruleContext) {
+            int a = ruleContext.getStart().getStartIndex();
+            int b = ruleContext.getStop().getStartIndex();
+            if (ruleContext.getChildCount() > 0) {
+                if (ruleContext.getChild(0) instanceof ParserRuleContext) {
+                    a = intervalOf((ParserRuleContext) ruleContext.getChild(0)).a;
+                }
+                if (ruleContext.getChild(0) instanceof TerminalNode) {
+                    a = intervalOf(((TerminalNode) ruleContext.getChild(0))).a;
+                }
+
+                if (ruleContext.getChild(ruleContext.getChildCount() - 1) instanceof ParserRuleContext) {
+                    b = intervalOf((ParserRuleContext) ruleContext.getChild(ruleContext.getChildCount() - 1)).b;
+                }
+                if (ruleContext.getChild(ruleContext.getChildCount() - 1) instanceof TerminalNode) {
+                    b = intervalOf((TerminalNode) ruleContext.getChild(ruleContext.getChildCount() - 1)).b;
+                }
+            }
+            a = a == -1 ? Integer.MAX_VALUE : a;
+            b = b == -1 ? Integer.MAX_VALUE : b;
             return (a <= b) ? new Interval(a, b) : new Interval(b, a);
         }
 
@@ -152,24 +195,30 @@ public class AntlrParserAdapter implements PsiParser {
             final ObjectRef<PsiBuilder.Marker> marker = new ObjectRef<PsiBuilder.Marker>();
             final PadaElement nodePsi = LangElements.instance().findByAntlrType(ruleContext.getRuleIndex());
 
-            Interval interval = adjust(ruleContext.getStart().getStartIndex(), ruleContext.getStop().getStopIndex());
-            actions.add(interval.a, new PsiMarkerAction() {
+            Interval interval = intervalOf(ruleContext);
+
+            debug("register enter " + nodePsi + " at " + interval + " with index " + actions.add(interval.a, new PsiMarkerAction() {
                 @Override
                 void run(PsiBuilder builder) {
-                    trace("enter element " + nodePsi + " at " + builder.getCurrentOffset());
+                    debug("mark enter (" + index + ")" + nodePsi + " at " + builder.getCurrentOffset());
                     marker.value = builder.mark();
                 }
-            });
+            }));
+
             super.visitChildren(node);
-            actions.add(interval.b, new PsiMarkerAction() {
+
+            debug("register leave " + nodePsi + " at " + interval + " with index " + actions.add(interval.b, new PsiMarkerAction() {
                 @Override
                 public void run(PsiBuilder builder) {
-                    trace("leave element " + nodePsi + " at " + builder.getCurrentOffset());
+                    debug("mark leave (" + index + ")" + nodePsi + " at " + builder.getCurrentOffset());
                     marker.value.done(nodePsi);
+                    marker.value = null;
                 }
-            });
+            }));
 
             return defaultResult();
         }
+
+
     }
 }

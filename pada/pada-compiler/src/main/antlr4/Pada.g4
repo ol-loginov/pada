@@ -4,10 +4,7 @@ grammar Pada;
 unit
   : unitPackage? 
     unitImport* 
-    ( unitClass
-    | unitExtension 
-    | unitFunction
-    )*
+    (unitClass | unitExtension | unitFunction)*
   ;
 
 /* UNIT DECLARATION */

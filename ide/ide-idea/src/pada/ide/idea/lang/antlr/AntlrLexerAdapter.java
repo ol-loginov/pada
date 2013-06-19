@@ -5,6 +5,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharSequenceReader;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.jetbrains.annotations.Nullable;
 import pada.compiler.antlr4.PadaLexer;
@@ -28,7 +29,23 @@ public class AntlrLexerAdapter extends LexerBase {
         this.buffer = buffer;
         this.startOffset = startOffset;
         this.endOffset = endOffset;
-        this.delegate = new PadaLexer(getCharStream());
+        this.delegate = new PadaLexer(getCharStream()) {
+            boolean skipFlag = false;
+
+            @Override
+            public void skip() {
+                skipFlag = true;
+            }
+
+            @Override
+            public void emit(Token token) {
+                if (skipFlag) {
+                    ((CommonToken) token).setChannel(Token.DEFAULT_CHANNEL);
+                    skipFlag = false;
+                }
+                super.emit(token);
+            }
+        };
         advance();
     }
 
