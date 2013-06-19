@@ -24,5 +24,7 @@
         <fileTypeFactory implementation="pada.ide.idea.PadaFileTypeFactory"/>
 
         <lang.parserDefinition language="Pada" implementationClass="pada.ide.idea.lang.PadaParserDefinition"/>
+
+        <annotator language="Pada" implementationClass="pada.ide.idea.PadaFileHighlightAnnotator"/>
     </extensions>
 </idea-plugin>

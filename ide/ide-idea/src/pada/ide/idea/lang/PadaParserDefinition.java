@@ -8,19 +8,17 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.tree.IFileElementType;
-import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import pada.compiler.antlr4.PadaLexer;
 import pada.ide.idea.PadaLanguage;
 import pada.ide.idea.lang.antlr.AntlrLexerAdapter;
 import pada.ide.idea.lang.antlr.AntlrParserAdapter;
-import pada.ide.idea.lang.psi.PadaFileImpl;
+import pada.ide.idea.lang.psi.PadaFilePsi;
 import pada.ide.idea.lang.psi.stubs.elements.PadaStubFileElementType;
 
 public class PadaParserDefinition implements ParserDefinition {
-    public static final IStubFileElementType PADA_FILE = new PadaStubFileElementType(PadaLanguage.INSTANCE);
+    public static final PadaStubFileElementType PADA_FILE = new PadaStubFileElementType(PadaLanguage.INSTANCE);
 
     @NotNull
     public Lexer createLexer(Project project) {
@@ -31,7 +29,7 @@ public class PadaParserDefinition implements ParserDefinition {
         return new AntlrParserAdapter();
     }
 
-    public IFileElementType getFileNodeType() {
+    public PadaStubFileElementType getFileNodeType() {
         return PADA_FILE;
     }
 
@@ -61,7 +59,7 @@ public class PadaParserDefinition implements ParserDefinition {
     }
 
     public PsiFile createFile(FileViewProvider viewProvider) {
-        return new PadaFileImpl(viewProvider);
+        return new PadaFilePsi(viewProvider);
     }
 
     @Override

@@ -3,7 +3,6 @@ package pada.compiler;
 import org.antlr.v4.runtime.*;
 import pada.compiler.antlr4.PadaLexer;
 import pada.compiler.antlr4.PadaParser;
-import pada.compiler.ast.AstBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,9 +24,6 @@ public class Assembler {
         parser.addErrorListener(createErrorListener(source.getPath()));
 
         PadaParser.UnitContext unit = parser.unit();
-        if (unit != null) {
-            unit.accept(new AstBuilder());
-        }
     }
 
     private ANTLRErrorListener createErrorListener(final String path) {

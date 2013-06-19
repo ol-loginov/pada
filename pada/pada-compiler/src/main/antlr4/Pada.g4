@@ -78,7 +78,7 @@ unitClass
     : classDecl classBody?;
 
 classDecl
-    : annotation* modifier* 'class' typeDeclName typeArguments? classSuperList?
+    : annotation* modifier* ('class'|'interface') typeDeclName typeArguments? classSuperList?
     ;
 
 classSuperList
@@ -99,9 +99,7 @@ modifier
     | 'volatile';
 
 typeMemberDecl
-    : typeFunctionDecl
-    | typeFieldDecl 
-    | typeConstructorDecl;
+    : (typeFunctionDecl | typeFieldDecl | typeConstructorDecl) ';'?;
 
 typeFieldDecl
     : annotation* modifier* typeRefN identifier;
@@ -161,8 +159,8 @@ statement
     | 'synchronized' parExpression block
     | 'continue'
     | 'break'
-    | 'return' expression?
-    | 'throw' expression
+    | 'return' expression? ';'?
+    | 'throw' expression ';'?
     | statementExpression;
 
 
@@ -253,7 +251,7 @@ arrayInitializer
   : '{' ( variableInitializer (',' variableInitializer)* )? '}';
 
 statementExpression
-    : expression;
+    : expression ';'?;
 
 /* EXPRESSIONS */
 
@@ -335,6 +333,7 @@ KThis: 'this';
 KVoid: 'void';
 KSuper: 'super';
 KClass: 'class';
+KInterface: 'interface';
 KCase: 'case';
 KSwitch: 'switch';
 KContinue: 'continue';
