@@ -11,6 +11,8 @@ import pada.ide.idea.PadaFileType;
 import pada.ide.idea.PadaLanguage;
 
 public class PadaFilePsi extends PsiFileBase implements PadaUnitOwner, PsiFile {
+    private PadaUnit padaUnit;
+
     public PadaFilePsi(FileViewProvider viewProvider) {
         super(viewProvider, PadaLanguage.INSTANCE);
     }
@@ -23,10 +25,11 @@ public class PadaFilePsi extends PsiFileBase implements PadaUnitOwner, PsiFile {
 
     @Override
     public PadaUnit getUnit() {
-        return null;
+        return padaUnit;
     }
 
     @Override
     public void setUnit(PadaUnit unit) {
+        padaUnit = unit;
     }
 }

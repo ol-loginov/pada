@@ -15,7 +15,7 @@ import pada.ide.idea.lang.PadaParserDefinition;
 public class AntlrParserAdapter implements PsiParser {
     @NotNull
     @Override
-    public synchronized ASTNode parse(IElementType root, final PsiBuilder builder) {
+    public ASTNode parse(IElementType root, final PsiBuilder builder) {
         PadaParser parser = createParser(builder);
         parser.removeErrorListeners();
         parser.addErrorListener(new ConsoleErrorListener());
