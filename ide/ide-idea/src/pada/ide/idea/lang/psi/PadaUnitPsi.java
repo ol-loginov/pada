@@ -1,16 +1,14 @@
 package pada.ide.idea.lang.psi;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.stubs.IStubElementType;
-import com.intellij.psi.stubs.StubElement;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiManager;
 
 public class PadaUnitPsi extends PadaPsi {
-    public PadaUnitPsi(@NotNull StubElement stub, @NotNull IStubElementType nodeType) {
-        super(stub, nodeType);
+    public PadaUnitPsi(PsiManager manager) {
+        super(manager);
     }
 
-    public PadaUnitPsi(@NotNull ASTNode node) {
-        super(node);
+    @Override
+    public String toString() {
+        return "Unit";
     }
 }

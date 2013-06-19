@@ -12,15 +12,12 @@ import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import pada.compiler.antlr4.PadaLexer;
-import pada.ide.idea.PadaLanguage;
 import pada.ide.idea.lang.antlr.AntlrLexerAdapter;
 import pada.ide.idea.lang.antlr.AntlrParserAdapter;
 import pada.ide.idea.lang.psi.PadaFilePsi;
-import pada.ide.idea.lang.psi.stubs.PadaFileStubElementType;
+import pada.ide.idea.lang.psi.stubs.PadaFileStub;
 
 public class PadaParserDefinition implements ParserDefinition {
-    public static final PadaFileStubElementType PADA_FILE = new PadaFileStubElementType(PadaLanguage.INSTANCE);
-
     @NotNull
     public Lexer createLexer(Project project) {
         return new AntlrLexerAdapter();
@@ -31,27 +28,27 @@ public class PadaParserDefinition implements ParserDefinition {
     }
 
     public IFileElementType getFileNodeType() {
-        return PADA_FILE;
+        return PadaFileStub.TYPE;
     }
 
     @NotNull
     public TokenSet getWhitespaceTokens() {
         return TokenSet.create(
-                LangTokens.instance().findByAntlrType(PadaLexer.Space));
+                LangToken.findByAntlrType(PadaLexer.Space));
     }
 
     @NotNull
     public TokenSet getCommentTokens() {
         return TokenSet.create(
-                LangTokens.instance().findByAntlrType(PadaLexer.LineComment),
-                LangTokens.instance().findByAntlrType(PadaLexer.Comment));
+                LangToken.findByAntlrType(PadaLexer.LineComment),
+                LangToken.findByAntlrType(PadaLexer.Comment));
     }
 
     @NotNull
     public TokenSet getStringLiteralElements() {
         return TokenSet.create(
-                LangTokens.instance().findByAntlrType(PadaLexer.StringLiteral),
-                LangTokens.instance().findByAntlrType(PadaLexer.CharacterLiteral));
+                LangToken.findByAntlrType(PadaLexer.StringLiteral),
+                LangToken.findByAntlrType(PadaLexer.CharacterLiteral));
     }
 
     @NotNull

@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.jetbrains.annotations.Nullable;
 import pada.compiler.antlr4.PadaLexer;
-import pada.ide.idea.lang.LangTokens;
+import pada.ide.idea.lang.LangToken;
 
 import java.io.IOException;
 
@@ -59,7 +59,7 @@ public class AntlrLexerAdapter extends LexerBase {
     public IElementType getTokenType() {
         if (token == null || token.getType() == Token.EOF)
             return null;
-        return LangTokens.instance().findByAntlrType(token.getType());
+        return LangToken.findByAntlrType(token.getType());
     }
 
     @Override

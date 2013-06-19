@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.jetbrains.annotations.NotNull;
 import pada.compiler.antlr4.PadaLexer;
 import pada.compiler.antlr4.PadaParser;
-import pada.ide.idea.lang.PadaParserDefinition;
+import pada.ide.idea.lang.LangElement;
 
 public class AntlrParserAdapter implements PsiParser {
     @NotNull
@@ -32,7 +32,7 @@ public class AntlrParserAdapter implements PsiParser {
             builder.advanceLexer();
         }
         completeActions(markerBuilders, builder, true);
-        unitMarker.done(PadaParserDefinition.PADA_FILE);
+        unitMarker.done(LangElement.UNIT);
 
         return builder.getTreeBuilt();
     }
