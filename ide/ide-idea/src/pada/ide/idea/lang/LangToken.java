@@ -9,7 +9,7 @@ public class LangToken extends IElementType {
 
     static {
         for (int i = 0; i < PadaLexer.tokenNames.length; ++i) {
-            TOKENS[i] = new LangToken(PadaLexer.tokenNames[i]);
+            TOKENS[i] = new LangToken(PadaLexer.tokenNames[i], PadaLexer.ruleNames[i].startsWith("K"));
         }
     }
 
@@ -19,7 +19,14 @@ public class LangToken extends IElementType {
         return TOKENS[antlrType];
     }
 
-    public LangToken(String debugName) {
+    private final boolean keyword;
+
+    public LangToken(String debugName, boolean keyword) {
         super(debugName, PadaLanguage.INSTANCE);
+        this.keyword = keyword;
+    }
+
+    public boolean isKeyword() {
+        return keyword;
     }
 }

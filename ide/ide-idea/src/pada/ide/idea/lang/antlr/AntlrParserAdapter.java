@@ -10,12 +10,20 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.jetbrains.annotations.NotNull;
 import pada.compiler.antlr4.PadaLexer;
 import pada.compiler.antlr4.PadaParser;
-import pada.ide.idea.lang.LangElement;
+import pada.ide.idea.lang.psi.stubs.PadaFileStub;
 
 public class AntlrParserAdapter implements PsiParser {
     @NotNull
     @Override
     public ASTNode parse(IElementType root, final PsiBuilder builder) {
+        PsiBuilder.Marker fileMarker = builder.mark();
+        parseRoot(builder);
+        fileMarker.done(PadaFileStub.TYPE);
+
+        return builder.getTreeBuilt();
+    }
+
+    private void parseRoot(PsiBuilder builder) {
         PadaParser parser = createParser(builder);
         parser.removeErrorListeners();
         parser.addErrorListener(new ConsoleErrorListener());
@@ -23,18 +31,15 @@ public class AntlrParserAdapter implements PsiParser {
         PadaParser.UnitContext parserResult = parser.unit();
 
         MarkerBuilder[] markerBuilders = new MarkerBuilder[]{
-                parserResult.accept(new MarkerBuilderAboutError())
+                parserResult.accept(new MarkerBuilderAboutError()),
+                parserResult.accept(new MarkerBuilderKeyword())
         };
 
-        PsiBuilder.Marker unitMarker = builder.mark();
         while (builder.getTokenType() != null) {
             completeActions(markerBuilders, builder, false);
             builder.advanceLexer();
         }
         completeActions(markerBuilders, builder, true);
-        unitMarker.done(LangElement.UNIT);
-
-        return builder.getTreeBuilt();
     }
 
     private void completeActions(MarkerBuilder[] markerBuilders, PsiBuilder builder, boolean hard) {

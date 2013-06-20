@@ -2,7 +2,10 @@ package pada.ide.idea.lang.antlr;
 
 import com.intellij.lang.PsiBuilder;
 import com.intellij.openapi.diagnostic.Log;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.*;
 
@@ -67,4 +70,15 @@ public abstract class MarkerBuilder extends AbstractParseTreeVisitor<MarkerBuild
         }
     }
 
+    public static Interval intervalOf(TerminalNode node) {
+        return intervalOf(node.getSymbol());
+    }
+
+    public static Interval intervalOf(Token symbol) {
+        int a = symbol.getStartIndex();
+        int b = symbol.getStopIndex();
+        a = a == -1 ? Integer.MAX_VALUE : a;
+        b = b == -1 ? Integer.MAX_VALUE : b;
+        return (a <= b) ? new Interval(a, b) : new Interval(b, a);
+    }
 }
