@@ -31,7 +31,7 @@ public class AntlrLexerAdapter extends LexerBase {
         this.buffer = buffer;
         this.interval = new Interval(startOffset, endOffset);
         this.token = null;
-        if (startOffset == endOffset)
+        if (startOffset > endOffset)
             return;
 
         try {

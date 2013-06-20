@@ -51,7 +51,7 @@ public abstract class MarkerBuilder extends AbstractParseTreeVisitor<MarkerBuild
             while (iterator.hasNext()) {
                 Map.Entry<Integer, List<MarkerAction>> kv = iterator.next();
 
-                boolean psiBuilderTarget = psiBuilder.getCurrentOffset() >= kv.getKey() || psiBuilder.rawTokenTypeStart(1) == kv.getKey();
+                boolean psiBuilderTarget = psiBuilder.getCurrentOffset() >= kv.getKey();// || psiBuilder.rawTokenTypeStart(1) == kv.getKey();
                 if (!hard && !psiBuilderTarget) {
                     break;
                 }
