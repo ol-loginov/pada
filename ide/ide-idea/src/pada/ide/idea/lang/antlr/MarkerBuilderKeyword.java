@@ -7,17 +7,17 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import pada.ide.idea.lang.LangToken;
 import pada.ide.idea.lang.psi.PadaKeyword;
 
-public class MarkerBuilderKeyword extends MarkerBuilder {
+public class MarkerBuilderKeyword extends MarkerBuilderAboutError {
     @Override
     public MarkerBuilder visitTerminal(@NotNull final TerminalNode node) {
         LangToken langToken = LangToken.findByAntlrType(node.getSymbol().getType());
         if (!langToken.isKeyword())
-            return defaultResult();
+            return super.visitTerminal(node);
 
         Interval interval = intervalOf(node);
+        debug("register keyword at " + interval);
         final MarkerHolder marker = new MarkerHolder();
 
-        debug("register keyword at " + interval);
         actions.add(interval.a, new MarkerAction() {
             @Override
             void run(PsiBuilder builder) {
@@ -25,6 +25,9 @@ public class MarkerBuilderKeyword extends MarkerBuilder {
                 marker.set(builder);
             }
         });
+
+        super.visitTerminal(node);
+
         actions.add(interval.b, new MarkerAction() {
             @Override
             public void run(PsiBuilder builder) {
@@ -32,6 +35,7 @@ public class MarkerBuilderKeyword extends MarkerBuilder {
                 marker.collapse(PadaKeyword.typeOf(node.getText()));
             }
         });
+
         return defaultResult();
     }
 }

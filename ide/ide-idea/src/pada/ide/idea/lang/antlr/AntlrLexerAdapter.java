@@ -4,9 +4,8 @@ import com.intellij.lexer.LexerBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharSequenceReader;
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.Interval;
 import org.jetbrains.annotations.Nullable;
 import pada.compiler.antlr4.PadaLexer;
 import pada.ide.idea.lang.LangToken;
@@ -14,38 +13,34 @@ import pada.ide.idea.lang.LangToken;
 import java.io.IOException;
 
 public class AntlrLexerAdapter extends LexerBase {
-    private PadaLexer delegate;
-
     private CharSequence buffer;
-    private int startOffset;
-    private int endOffset;
+    private Interval interval;
+    private int state;
 
-    int state;
     Token token;
+    PadaLexer delegate = new PadaLexer(new ANTLRInputStream()) {
+        @Override
+        public void skip() {
+            // you shouldn't skip any token
+        }
+    };
 
     @Override
     public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
         this.state = initialState;
         this.buffer = buffer;
-        this.startOffset = startOffset;
-        this.endOffset = endOffset;
-        this.delegate = new PadaLexer(getCharStream()) {
-            boolean skipFlag = false;
+        this.interval = new Interval(startOffset, endOffset);
+        this.token = null;
+        if (startOffset == endOffset)
+            return;
 
-            @Override
-            public void skip() {
-                skipFlag = true;
-            }
+        try {
+            CharSequenceReader bufferReader = new CharSequenceReader(buffer.subSequence(startOffset, endOffset));
+            delegate.setInputStream(new ANTLRInputStream(bufferReader));
+        } catch (IOException e) {
+            throw new IllegalStateException("cannot create ANTLR input stream", e);
+        }
 
-            @Override
-            public void emit(Token token) {
-                if (skipFlag) {
-                    ((CommonToken) token).setChannel(Token.DEFAULT_CHANNEL);
-                    skipFlag = false;
-                }
-                super.emit(token);
-            }
-        };
         advance();
     }
 
@@ -64,16 +59,17 @@ public class AntlrLexerAdapter extends LexerBase {
 
     @Override
     public int getTokenStart() {
-        return token.getStartIndex();
+        return token.getStartIndex() + getBufferStart();
     }
 
     @Override
     public int getTokenEnd() {
-        return token.getStopIndex();
+        return token.getStopIndex() + getBufferStart();
     }
 
     @Override
     public void advance() {
+        if (delegate == null) return;
         token = delegate.nextToken();
     }
 
@@ -82,20 +78,12 @@ public class AntlrLexerAdapter extends LexerBase {
         return buffer;
     }
 
-    public CharStream getCharStream() {
-        try {
-            return new ANTLRInputStream(new CharSequenceReader(buffer.subSequence(getBufferStart(), getBufferEnd())));
-        } catch (IOException e) {
-            throw new IllegalStateException("cannot create ANTLR input stream", e);
-        }
-    }
-
     public int getBufferStart() {
-        return startOffset;
+        return interval.a;
     }
 
     @Override
     public int getBufferEnd() {
-        return endOffset;
+        return interval.b;
     }
 }

@@ -8,9 +8,9 @@ public class MarkerBuilderAboutError extends MarkerBuilder {
     @Override
     public MarkerBuilder visitErrorNode(final ErrorNode node) {
         Interval interval = intervalOf(node);
+        debug("register error at " + interval);
         final MarkerHolder marker = new MarkerHolder();
 
-        debug("register error at " + interval);
         actions.add(interval.a, new MarkerAction() {
             @Override
             void run(PsiBuilder builder) {
@@ -18,6 +18,9 @@ public class MarkerBuilderAboutError extends MarkerBuilder {
                 marker.set(builder);
             }
         });
+
+        super.visitErrorNode(node);
+
         actions.add(interval.b, new MarkerAction() {
             @Override
             public void run(PsiBuilder builder) {
@@ -25,6 +28,7 @@ public class MarkerBuilderAboutError extends MarkerBuilder {
                 marker.error(node.getText());
             }
         });
+
         return defaultResult();
     }
 }
