@@ -4,6 +4,8 @@ import com.intellij.lexer.LexerBase;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.text.CharSequenceReader;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.IntStream;
+import org.antlr.v4.runtime.LexerNoViableAltException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.jetbrains.annotations.Nullable;
@@ -14,24 +16,34 @@ import java.io.IOException;
 
 public class AntlrLexerAdapter extends LexerBase {
     private CharSequence buffer;
+    private int bufferState;
     private Interval interval;
-    private int state;
 
-    Token token;
-    PadaLexer delegate = new PadaLexer(new ANTLRInputStream()) {
+    final PadaLexer delegate = new PadaLexer(new ANTLRInputStream()) {
         @Override
         public void skip() {
             // you shouldn't skip any token
         }
+
+        // test text: import a.b."a
+        @Override
+        public void recover(LexerNoViableAltException e) {
+            if (_input.LA(1) != IntStream.EOF) {
+                // skip a char and try again
+                getInterpreter().consume(_input);
+            }
+
+        }
     };
+    Token token;
 
     @Override
     public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
-        this.state = initialState;
         this.buffer = buffer;
+        this.bufferState = initialState;
         this.interval = new Interval(startOffset, endOffset);
         this.token = null;
-        if (startOffset > endOffset)
+        if (isBufferEmpty())
             return;
 
         try {
@@ -46,7 +58,7 @@ public class AntlrLexerAdapter extends LexerBase {
 
     @Override
     public int getState() {
-        return state;
+        return bufferState;
     }
 
     @Nullable
@@ -59,23 +71,30 @@ public class AntlrLexerAdapter extends LexerBase {
 
     @Override
     public int getTokenStart() {
-        return token.getStartIndex() + getBufferStart();
+        return getBufferStart() + token.getStartIndex();
     }
 
     @Override
     public int getTokenEnd() {
-        return token.getStopIndex() + getBufferStart();
+        return getBufferStart() + token.getStopIndex() + 1;
     }
 
     @Override
     public void advance() {
-        if (delegate == null) return;
-        token = delegate.nextToken();
+        token = isBufferEmpty() ? null : delegate.nextToken();
     }
 
     @Override
     public CharSequence getBufferSequence() {
         return buffer;
+    }
+
+    private boolean isBufferEmpty() {
+        return getBufferLength() <= 0;
+    }
+
+    private int getBufferLength() {
+        return interval.b - interval.a;
     }
 
     public int getBufferStart() {

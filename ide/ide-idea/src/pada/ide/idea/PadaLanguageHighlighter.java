@@ -1,7 +1,7 @@
 package pada.ide.idea;
 
 import com.intellij.lexer.Lexer;
-import com.intellij.openapi.editor.SyntaxHighlighterColors;
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class PadaLanguageHighlighter extends SyntaxHighlighterBase {
     private static final Map<IElementType, TextAttributesKey> keys1 = new HashMap<IElementType, TextAttributesKey>();
 
-    public static final TextAttributesKey KEYWORD = TextAttributesKey.createTextAttributesKey("PADA.KEYWORD", SyntaxHighlighterColors.KEYWORD);
+    public static final TextAttributesKey KEYWORD = TextAttributesKey.createTextAttributesKey("PADA.KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
 
     static {
         for (LangToken token : LangToken.TOKENS) {
